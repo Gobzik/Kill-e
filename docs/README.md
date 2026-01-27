@@ -1,13 +1,13 @@
-# 📚 Техническая документация проекта
+#  Техническая документация проекта
 # Интерактивное приложение для чтения и прослушивания книг
 
 ---
 
-## 📑 Содержание документации
+##  Содержание документации
 
 ### 1. Технические задания
 
-#### 1.1 [Backend API](./TZ_BACKEND_API.md) ⭐
+#### 1.1 [Backend API](./TZ_BACKEND_API.md) 
 Полное техническое задание для серверной части:
 - REST API спецификация
 - Схема базы данных PostgreSQL
@@ -17,7 +17,7 @@
 
 **Технологии:** Spring Boot 4, Kotlin, PostgreSQL
 
-#### 1.2 [Android Application](./TZ_ANDROID_APP.md) ⭐
+#### 1.2 [Android Application](./TZ_ANDROID_APP.md) 
 Техническое задание для мобильного приложения:
 - MVVM архитектура
 - Jetpack Compose UI
@@ -75,7 +75,7 @@ MVVM + Clean Architecture:
 
 ---
 
-## 🎯 Ключевые особенности проекта
+##  Ключевые особенности проекта
 
 ### Основная фича: Синхронное чтение и прослушивание
 
@@ -114,7 +114,7 @@ MVVM + Clean Architecture:
 
 ---
 
-## 🔄 Workflow: Создание синхронизированного контента
+##  Workflow: Создание синхронизированного контента
 
 ### Шаг 1: Создание книги (Admin Panel)
 1. Админ заходит в панель
@@ -166,7 +166,7 @@ MVVM + Clean Architecture:
 
 ---
 
-## 🛠️ Технологии
+## Технологии
 
 ### Backend
 - **Spring Boot** 4.0.2
@@ -244,15 +244,18 @@ project-root/
 
 ---
 
-## 📚 Ссылки на документацию
+##  Ссылки на документацию
 
-| Документ | Описание | Ссылка |
-|----------|----------|--------|
-| **Backend API ТЗ** | Полная спецификация API | [TZ_BACKEND_API.md](./TZ_BACKEND_API.md) |
-| **Android ТЗ** | Спецификация Android app | [TZ_ANDROID_APP.md](./TZ_ANDROID_APP.md) |
-| **Admin Panel ТЗ** | Спецификация веб-панели | [TZ_ADMIN_PANEL.md](./TZ_ADMIN_PANEL.md) |
-| **Требования** | FR + NFR | [REQUIREMENTS.md](./REQUIREMENTS.md) |
-| **Архитектура** | Clean Architecture | [ARCHITECTURE.md](./ARCHITECTURE.md) |
-| **Swagger** | API документация | http://localhost:8080/swagger-ui.html |
+| Документ           | Описание                 | Ссылка                                                                 |
+|--------------------|--------------------------|------------------------------------------------------------------------|
+| **Backend API ТЗ** | Полная спецификация API  | [TZ_BACKEND_API.md](./TZ_BACKEND_API.md)                               |
+| **Android ТЗ**     | Спецификация Android app | [TZ_ANDROID_APP.md](./TZ_ANDROID_APP.md)                               |
+| **Admin Panel ТЗ** | Спецификация веб-панели  | [TZ_ADMIN_PANEL.md](./TZ_ADMIN_PANEL.md)                               |
+| **Требования**     | FR + NFR                 | [REQUIREMENTS.md](./REQUIREMENTS.md)                                   |
+| **Архитектура**    | Clean Architecture       | [ARCHITECTURE.md](./ARCHITECTURE.md)                                   |
+| **Swagger**        | API документация         | http://localhost:8080/swagger-ui.html                                  |
+| **C4**             | Архитектурная диаграмма  | [C4](https://miro.com/app/board/uXjVGMpY2_o=/?share_link_id=140586318) |
+| **Sequence диаграмма** | Диаграмма процесса чтения | [Sequence](./Sequence.jpg)                                             |
 
 ---
+
