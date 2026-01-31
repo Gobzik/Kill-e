@@ -8,9 +8,10 @@ import kotlin.collections.isNotEmpty
 import kotlin.collections.all
 import kotlin.collections.toMutableList
 import kotlin.collections.sortBy
+import com.yourapp.domain.model.BookId
 // bookID беру из Chapter
- class Book(
-    val _id: UUID,
+ class Book private constructor(
+    val id: BookId,
     val _title: String,
     val _author: String,
     val _language: String,
@@ -21,7 +22,6 @@ import kotlin.collections.sortBy
 
 ) {
     // ========== Публичные read-only свойства (геттеры) ==========
-    val id: UUID get() = _id
     val title: String get() = _title
     val author: String get() = _author
     val language: String get() = _language
@@ -41,16 +41,12 @@ import kotlin.collections.sortBy
         }
     }
     fun addChapter(chapter: Chapter) {
-        require(chapter.bookId == this._id) {
-            "Глава должна принадлежать этой книге"
-        }
+        validateChapters(_chapters, this.id)
         _chapters.add(chapter)
         ensureSorting()
     }
     fun getChapter(index: Int): Chapter {
-        require(index in 0 until _chapters.size) {
-            "Индекс $index вне диапазона глав [0, ${_chapters.size})"
-        }
+        validateChapterIndex(index)
         return _chapters[index]
     }
     fun hasAudio(): Boolean = _audio
@@ -59,30 +55,78 @@ import kotlin.collections.sortBy
     fun chapters(): List<Chapter> = _chapters.toList()
     // ========== ДОМЕННЫЕ ИНВАРИАНТЫ ==========
     init {
-        require(_title.isNotBlank()) { "Название книги не может быть пустым" }
-        require(_chapters.isNotEmpty()) { "Книга должна содержать минимум 1 главу" }
-        require(_chapters.all { it.bookId == this._id }) { "Все главы должны принадлежать этой книге" }
+        // Используем вынесенные методы валидации
+        validateTitle(_title)
+        validateAuthor(_author)
+        validateChapters(_chapters, this.id)
         ensureSorting()
     }
     // ========== Метод для создания ==========
     companion object {
+
+        private fun validateTitle(title: String) {
+            if (title.isBlank()) {
+                throw DomainException("Заголовок книги не может быть пустым")
+            }
+            if (title.length > 500) {
+                throw DomainException("Название книги слишком длинное (максимум 500 символов)")
+            }
+        }
+
+        private fun validateAuthor(author: String) {
+            if (author.isBlank()) {
+                throw DomainException("Автор книги не может быть пустым")
+            }
+            if (author.length > 200) {
+                throw DomainException("Имя автора слишком длинное (максимум 200 символов)")
+            }
+        }
+        private fun validateChapterIndex(index: Int) {
+            require(index in 0 until _chapters.size) {
+                "Индекс главы $index вне допустимого диапазона [0, ${_chapters.size})"
+            }
+        }
+        private fun validateChapters(chapters: List<Chapter>, bookId: BookId? = null) {
+            if (chapters.isEmpty()) {
+                throw DomainException("Книга должна содержать минимум 1 главу")
+            }
+
+            // Проверяем принадлежность глав книге
+            if (bookId != null) {
+                val invalidChapters = chapters.filter { it.bookId != bookId }
+                if (invalidChapters.isNotEmpty()) {
+                    throw DomainException("Все главы должны принадлежать этой книге")
+                }
+            }
         fun create(
-            id: UUID = UUID.randomUUID(),
             title: String,
             author: String,
             language: String,
             coverUrl: String? = null,
-            chapters: List<Chapter>
+            chapters: List<Chapter>,
+            audio: Boolean,
+            text: Boolean,
         ): Book {
+            val hasAudio = chapters.any { it.hasAudio }
+            val hasText = chapters.any { it.hasText }
+            validateTitle(title)
+            validateAuthor(author)
+            validateChapters(chapters)
             return Book(
-                _id = id,
+                id = BookId.generate(),
                 _title = title,
                 _author = author,
                 _language = language,
                 _coverUrl = coverUrl,
-                _chapters = chapters.toMutableList()
+                _chapters = chapters.toMutableList(),
+                _audio = hasAudio,
+                _text = hasText
+
             )
         }
     }
+
+    }
     }
  }
+
