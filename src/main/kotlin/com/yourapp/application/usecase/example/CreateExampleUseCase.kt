@@ -26,7 +26,7 @@ class CreateExampleUseCase(
 ) : UseCase<CreateExampleRequest, ExampleResponse> {
 
     @Transactional
-    override suspend fun execute(input: CreateExampleRequest): ExampleResponse {
+    override fun execute(input: CreateExampleRequest): ExampleResponse {
         // 1. Преобразование DTO -> Domain
         val priority = Priority.valueOf(input.priority)
 
