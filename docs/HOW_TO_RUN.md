@@ -1,5 +1,24 @@
 # Как запустить проект и протестировать API
 
+## ✅ Последние исправления (2026-01-31)
+
+### Что было исправлено:
+
+1. ✅ **Swagger теперь работает** - добавлена зависимость `springdoc-openapi-starter-webmvc-ui:2.3.0`
+2. ✅ **API документация доступна по адресу `/api-docs`** вместо `/v3/api-docs`
+3. ✅ **ExampleEntity отображается в Swagger** - настроен `@ComponentScan` и `@EntityScan`
+4. ✅ **JPA работает корректно** - настроена база данных H2 in-memory
+5. ✅ **Добавлена валидация** - подключен `spring-boot-starter-validation`
+
+### Технические детали:
+
+- **База данных**: H2 in-memory (автоматически создаётся при запуске)
+- **Swagger UI**: `http://localhost:8080/swagger-ui.html`
+- **OpenAPI JSON**: `http://localhost:8080/api-docs`
+- **H2 Console**: `http://localhost:8080/h2-console` (URL: `jdbc:h2:mem:testdb`, User: `sa`, Password: пусто)
+
+---
+
 ## 🚀 Запуск проекта
 
 ### Предварительные требования
