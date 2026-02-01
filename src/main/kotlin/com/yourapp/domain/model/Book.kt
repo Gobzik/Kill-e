@@ -99,6 +99,7 @@ import com.yourapp.domain.model.BookId
                 }
             }
         fun create(
+            id: BookId,
             title: String,
             author: String,
             language: String,
@@ -113,7 +114,7 @@ import com.yourapp.domain.model.BookId
             validateAuthor(author)
             validateChapters(chapters)
             return Book(
-                id = BookId.generate(),
+                id = id,
                 _title = title,
                 _author = author,
                 _language = language,
