@@ -1,6 +1,5 @@
 package com.audiobook.domain.model
 
-import com.audiobook.domain.exception.DomainException
 
 @JvmInline
 value class ChapterIndex(val value: Int) {

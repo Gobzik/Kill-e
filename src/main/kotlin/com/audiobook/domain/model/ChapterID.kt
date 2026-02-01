@@ -1,6 +1,6 @@
 package com.audiobook.domain.model
 
-import com.audiobook.domain.exception.DomainException
+import com.yourapp.domain.exception.DomainException
 import java.util.UUID
 
 @JvmInline

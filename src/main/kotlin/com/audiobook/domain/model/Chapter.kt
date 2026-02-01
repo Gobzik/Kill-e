@@ -1,8 +1,7 @@
 package com.audiobook.domain.model
 
-import com.audiobook.domain.exception.DomainException
+import com.yourapp.domain.exception.DomainException
 import java.time.LocalDateTime
-import java.util.UUID
 
 /**
  * Chapter - доменная сущность главы.
