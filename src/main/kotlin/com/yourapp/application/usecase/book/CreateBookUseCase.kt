@@ -19,16 +19,22 @@ class CreateBookUseCase(
 
     @Transactional
     override fun execute(input: CreateBookRequest): BookResponse {
+        // 1. Генерируем ID книги заранее
+        val bookId = BookId.generate()
+
+        // 2. Создаем главы с правильным bookId
         val chapters = input.chapters.map { chapterRequest ->
             Chapter.createWithText(
-                bookId = BookId.generate(), // временный ID, будет заменен
+                bookId = bookId,
                 index = com.yourapp.domain.model.ChapterIndex(chapterRequest.index),
                 title = chapterRequest.title,
                 text = chapterRequest.text ?: ""
             )
         }
 
-        val book = Book.create(
+        // 3. Создание книги с главами
+        val book = Book.createWithId(
+            id = bookId,
             title = input.title,
             author = input.author,
             language = input.language,
@@ -38,7 +44,10 @@ class CreateBookUseCase(
             text = input.text
         )
 
+        // 4. Сохранение через репозиторий
         val savedBook = repository.save(book)
+
+        // 5. Преобразование Domain -> DTO
         return mapper.toResponse(savedBook)
     }
 }

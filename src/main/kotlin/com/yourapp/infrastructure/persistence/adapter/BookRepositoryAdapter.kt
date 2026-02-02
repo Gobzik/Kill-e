@@ -63,16 +63,18 @@ class BookRepositoryAdapter(
             ChapterEntityJpa(
                 id = chapter.id.value,
                 book = bookJpa,
-                title = chapter.title ?: "",
-                content = chapter.text ?: "",
+                title = chapter.title,
+                content = chapter.text,
                 index = chapter.index.value,
                 audioUrl = chapter.audioUrl,
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now()
+                timingUrl = chapter.timingUrl,
+                durationMs = chapter.durationMs,
+                createdAt = chapter.createdAt,
+                updatedAt = chapter.updatedAt
             )
         }
 
-        bookJpa.chapters = chaptersJpa as MutableList<ChapterEntityJpa>
+        bookJpa.chapters = chaptersJpa.toMutableList()
         return bookJpa
     }
 
@@ -85,10 +87,10 @@ class BookRepositoryAdapter(
                 title = chapterJpa.title,
                 text = chapterJpa.content,
                 audioUrl = chapterJpa.audioUrl,
-                timingUrl = null,
+                timingUrl = chapterJpa.timingUrl,
                 createdAt = chapterJpa.createdAt,
                 updatedAt = chapterJpa.updatedAt,
-                durationMs = null
+                durationMs = chapterJpa.durationMs
             )
         }
 

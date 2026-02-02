@@ -58,17 +58,24 @@ data class ChapterEntityJpa(
     @JoinColumn(name = "book_id", nullable = false)
     var book: BookEntityJpa,
 
-    @Column(nullable = false, length = 200)
-    var title: String,
+    @Column(name = "title", length = 500)
+    var title: String?,
 
-    @Column(columnDefinition = "TEXT", nullable = false)
-    var content: String,
+    @Lob
+    @Column(name = "text", columnDefinition = "TEXT")
+    var content: String?,
 
-    @Column(nullable = false)
+    @Column(name = "chapter_index", nullable = false)
     var index: Int,
 
-    @Column(name = "audio_url", length = 500)
+    @Column(name = "audio_url", length = 2000)
     var audioUrl: String? = null,
+
+    @Column(name = "timing_url", length = 2000)
+    var timingUrl: String? = null,
+
+    @Column(name = "duration_ms")
+    var durationMs: Long? = null,
 
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),

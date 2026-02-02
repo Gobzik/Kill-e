@@ -114,6 +114,33 @@ class Book private constructor(
             )
         }
 
+        fun createWithId(
+            id: BookId,
+            title: String,
+            author: String,
+            language: String,
+            coverUrl: String? = null,
+            chapters: List<Chapter>,
+            audio: Boolean,
+            text: Boolean
+        ): Book {
+            val hasAudio = chapters.any { it.hasAudio() }
+            val hasText = chapters.any { it.hasText() }
+            validateTitle(title)
+            validateAuthor(author)
+            validateChapters(chapters, id)
+            return Book(
+                id = id,
+                _title = title,
+                _author = author,
+                _language = language,
+                _coverUrl = coverUrl,
+                _chapters = chapters.toMutableList(),
+                _audio = hasAudio,
+                _text = hasText
+            )
+        }
+
         fun restore(
             id: BookId,
             title: String,
