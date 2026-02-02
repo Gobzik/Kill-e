@@ -1,8 +1,8 @@
-package com.audiobook.application.usecase.chapter
+package com.yourapp.application.usecase.chapter
 
 import com.audiobook.domain.model.BookId
-import com.audiobook.domain.model.Chapter
-import com.audiobook.domain.repository.ChapterRepository
+import com.yourapp.domain.model.Chapter
+import com.yourapp.domain.repository.ChapterRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

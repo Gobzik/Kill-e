@@ -1,11 +1,11 @@
-package com.audiobook.presentation.mapper
+package com.yourapp.presentation.mapper
 
-import com.audiobook.application.dto.request.CreateChapterRequest
-import com.audiobook.application.dto.response.ChapterResponse
+import com.yourapp.application.dto.request.CreateChapterRequest
+import com.yourapp.application.dto.response.ChapterResponse
 import com.audiobook.domain.model.BookId
-import com.audiobook.domain.model.Chapter
-import com.audiobook.domain.model.ChapterId
-import com.audiobook.domain.model.ChapterIndex
+import com.yourapp.domain.model.Chapter
+import com.yourapp.domain.model.ChapterId
+import com.yourapp.domain.model.ChapterIndex
 import java.time.LocalDateTime
 import java.util.*
 

@@ -1,8 +1,8 @@
-package com.audiobook.domain.repository
+package com.yourapp.domain.repository
 
 import com.audiobook.domain.model.BookId
-import com.audiobook.domain.model.Chapter
-import com.audiobook.domain.model.ChapterId
+import com.yourapp.domain.model.Chapter
+import com.yourapp.domain.model.ChapterId
 import java.util.*
 
 interface ChapterRepository {

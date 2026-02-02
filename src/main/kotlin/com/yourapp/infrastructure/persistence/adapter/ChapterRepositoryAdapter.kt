@@ -1,9 +1,12 @@
-package com.audiobook.infrastructure.persistence.adapter
+package com.yourapp.infrastructure.persistence.adapter
 
 import com.audiobook.domain.model.*
-import com.audiobook.domain.repository.ChapterRepository
-import com.audiobook.infrastructure.persistence.entity.ChapterEntity
-import com.audiobook.infrastructure.persistence.repository.ChapterJpaRepository
+import com.yourapp.domain.repository.ChapterRepository
+import com.yourapp.infrastructure.persistence.entity.ChapterEntity
+import com.yourapp.infrastructure.persistence.repository.ChapterJpaRepository
+import com.yourapp.domain.model.Chapter
+import com.yourapp.domain.model.ChapterId
+import com.yourapp.domain.model.ChapterIndex
 import org.springframework.stereotype.Repository
 import java.util.*
 

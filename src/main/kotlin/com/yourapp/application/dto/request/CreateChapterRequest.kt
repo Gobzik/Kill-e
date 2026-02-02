@@ -1,4 +1,4 @@
-package com.audiobook.application.dto.request
+package com.yourapp.application.dto.request
 
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank

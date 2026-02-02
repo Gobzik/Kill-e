@@ -1,11 +1,11 @@
-package com.audiobook.presentation.controller
+package com.yourapp.presentation.controller
 
-import com.audiobook.application.dto.request.CreateChapterRequest
-import com.audiobook.application.dto.response.ChapterResponse
-import com.audiobook.application.usecase.chapter.CreateChapterUseCase
-import com.audiobook.application.usecase.chapter.GetPlayableChaptersUseCase
+import com.yourapp.application.dto.request.CreateChapterRequest
+import com.yourapp.application.dto.response.ChapterResponse
+import com.yourapp.application.usecase.chapter.CreateChapterUseCase
+import com.yourapp.application.usecase.chapter.GetPlayableChaptersUseCase
 import com.audiobook.domain.model.BookId
-import com.audiobook.domain.model.ChapterIndex
+import com.yourapp.domain.model.ChapterIndex
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

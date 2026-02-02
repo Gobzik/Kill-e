@@ -1,6 +1,6 @@
-package com.audiobook.infrastructure.persistence.repository
+package com.yourapp.infrastructure.persistence.repository
 
-import com.audiobook.infrastructure.persistence.entity.ChapterEntity
+import com.yourapp.infrastructure.persistence.entity.ChapterEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param

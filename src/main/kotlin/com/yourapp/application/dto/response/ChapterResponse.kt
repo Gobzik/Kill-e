@@ -1,6 +1,6 @@
-package com.audiobook.application.dto.response
+package com.yourapp.application.dto.response
 
-import com.audiobook.domain.model.Chapter
+import com.yourapp.domain.model.Chapter
 import java.time.LocalDateTime
 import java.util.UUID
 

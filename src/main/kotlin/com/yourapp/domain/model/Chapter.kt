@@ -1,4 +1,4 @@
-package com.audiobook.domain.model
+package com.yourapp.domain.model
 
 import com.yourapp.domain.exception.DomainException
 import java.time.LocalDateTime
