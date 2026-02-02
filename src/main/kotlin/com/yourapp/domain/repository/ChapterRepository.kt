@@ -1,6 +1,6 @@
 package com.yourapp.domain.repository
 
-import com.audiobook.domain.model.BookId
+import com.yourapp.domain.model.BookId
 import com.yourapp.domain.model.Chapter
 import com.yourapp.domain.model.ChapterId
 import java.util.*

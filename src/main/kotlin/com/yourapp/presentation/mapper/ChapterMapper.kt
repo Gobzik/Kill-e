@@ -2,7 +2,7 @@ package com.yourapp.presentation.mapper
 
 import com.yourapp.application.dto.request.CreateChapterRequest
 import com.yourapp.application.dto.response.ChapterResponse
-import com.audiobook.domain.model.BookId
+import com.yourapp.domain.model.BookId
 import com.yourapp.domain.model.Chapter
 import com.yourapp.domain.model.ChapterId
 import com.yourapp.domain.model.ChapterIndex

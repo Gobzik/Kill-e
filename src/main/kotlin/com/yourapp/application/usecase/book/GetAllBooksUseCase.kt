@@ -7,9 +7,6 @@ import com.yourapp.presentation.mapper.BookMapper
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
-/**
- * Use Case: Получение всех книг.
- */
 @Service
 class GetAllBooksUseCase(
     private val repository: BookRepository,

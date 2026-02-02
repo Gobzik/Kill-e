@@ -1,11 +1,18 @@
 package com.yourapp.presentation.controller
 
 import com.yourapp.application.dto.request.CreateChapterRequest
+import com.yourapp.application.dto.response.ApiResponse
 import com.yourapp.application.dto.response.ChapterResponse
 import com.yourapp.application.usecase.chapter.CreateChapterUseCase
 import com.yourapp.application.usecase.chapter.GetPlayableChaptersUseCase
-import com.audiobook.domain.model.BookId
+import com.yourapp.application.usecase.chapter.GetChapterUseCase
+import com.yourapp.application.usecase.chapter.UpdateChapterUseCase
+import com.yourapp.application.usecase.chapter.UpdateChapterCommand
+import com.yourapp.application.usecase.chapter.DeleteChapterUseCase
+import com.yourapp.domain.model.BookId
 import com.yourapp.domain.model.ChapterIndex
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -13,15 +20,20 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/chapters")
+@Tag(name = "Chapters", description = "API для управления главами")
 class ChapterController(
     private val createChapterUseCase: CreateChapterUseCase,
-    private val getPlayableChaptersUseCase: GetPlayableChaptersUseCase
+    private val getPlayableChaptersUseCase: GetPlayableChaptersUseCase,
+    private val getChapterUseCase: GetChapterUseCase,
+    private val updateChapterUseCase: UpdateChapterUseCase,
+    private val deleteChapterUseCase: DeleteChapterUseCase
 ) {
 
     @PostMapping
-    fun createChapter(@Valid @RequestBody request: CreateChapterRequest): ResponseEntity<ChapterResponse> {
+    @Operation(summary = "Создать главу", description = "Создаёт новую главу")
+    fun createChapter(@Valid @RequestBody request: CreateChapterRequest): ResponseEntity<ApiResponse<ChapterResponse>> {
         if (!request.validate()) {
-            return ResponseEntity.badRequest().body(null)
+            return ResponseEntity.badRequest().body(ApiResponse.error("Chapter must have either text or audio"))
         }
 
         val chapter = createChapterUseCase.execute(
@@ -35,18 +47,49 @@ class ChapterController(
 
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(ChapterResponse.fromDomain(chapter))
+            .body(ApiResponse.success(ChapterResponse.fromDomain(chapter), "Глава успешно создана"))
     }
 
     @GetMapping("/book/{bookId}/playable")
-    fun getPlayableChapters(@PathVariable bookId: String): ResponseEntity<List<ChapterResponse>> {
+    @Operation(summary = "Получить воспроизводимые главы", description = "Возвращает все воспроизводимые главы книги")
+    fun getPlayableChapters(@PathVariable bookId: String): ResponseEntity<ApiResponse<List<ChapterResponse>>> {
         val chapters = getPlayableChaptersUseCase.execute(BookId.fromString(bookId))
-        return ResponseEntity.ok(chapters.map { ChapterResponse.fromDomain(it) })
+        return ResponseEntity.ok(ApiResponse.success(chapters.map { ChapterResponse.fromDomain(it) }))
     }
 
     @GetMapping("/{id}")
-    fun getChapter(@PathVariable id: String): ResponseEntity<ChapterResponse> {
-        // TODO: Implement
-        return ResponseEntity.notFound().build()
+    @Operation(summary = "Получить главу по ID", description = "Возвращает главу")
+    fun getChapter(@PathVariable id: String): ResponseEntity<ApiResponse<ChapterResponse>> {
+        val result = getChapterUseCase.execute(id)
+        return ResponseEntity.ok(ApiResponse.success(result))
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Обновить главу", description = "Обновляет существующую главу")
+    fun updateChapter(
+        @PathVariable id: String,
+        @RequestBody request: UpdateChapterRequest
+    ): ResponseEntity<ApiResponse<ChapterResponse>> {
+        val command = UpdateChapterCommand(
+            chapterId = id,
+            text = request.text,
+            audioUrl = request.audioUrl,
+            timingUrl = request.timingUrl
+        )
+        val result = updateChapterUseCase.execute(command)
+        return ResponseEntity.ok(ApiResponse.success(result, "Глава успешно обновлена"))
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Удалить главу", description = "Удаляет главу")
+    fun deleteChapter(@PathVariable id: String): ResponseEntity<ApiResponse<Unit>> {
+        deleteChapterUseCase.execute(id)
+        return ResponseEntity.ok(ApiResponse.success(Unit, "Глава успешно удалена"))
     }
 }
+
+data class UpdateChapterRequest(
+    val text: String? = null,
+    val audioUrl: String? = null,
+    val timingUrl: String? = null
+)

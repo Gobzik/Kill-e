@@ -1,6 +1,6 @@
 package com.yourapp.application.usecase.chapter
 
-import com.audiobook.domain.model.BookId
+import com.yourapp.domain.model.BookId
 import com.yourapp.domain.model.Chapter
 import com.yourapp.domain.repository.ChapterRepository
 import org.springframework.stereotype.Service

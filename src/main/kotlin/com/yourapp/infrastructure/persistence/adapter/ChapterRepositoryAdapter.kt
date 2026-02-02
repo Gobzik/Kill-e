@@ -1,6 +1,6 @@
 package com.yourapp.infrastructure.persistence.adapter
 
-import com.audiobook.domain.model.*
+import com.yourapp.domain.model.BookId
 import com.yourapp.domain.repository.ChapterRepository
 import com.yourapp.infrastructure.persistence.entity.ChapterEntity
 import com.yourapp.infrastructure.persistence.repository.ChapterJpaRepository
@@ -53,7 +53,6 @@ class ChapterRepositoryAdapter(
     }
 }
 
-// Extension functions for mapping
 fun ChapterEntity.toDomain(): Chapter {
     return Chapter.restore(
         id = ChapterId.fromString(id.toString()),

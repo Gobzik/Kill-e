@@ -3,14 +3,7 @@ package com.yourapp.domain.model
 import com.yourapp.domain.exception.DomainException
 import java.time.LocalDateTime
 
-/**
- * Chapter - доменная сущность главы.
- *
- * Responsibilities:
- * - Хранить контент главы (текст/аудио/тайминги)
- * - Определять доступность воспроизведения
- * - Инкапсулировать правила валидации главы
- */
+@ConsistentCopyVisibility
 data class Chapter private constructor(
     val id: ChapterId,
     val bookId: BookId,
@@ -24,7 +17,6 @@ data class Chapter private constructor(
     private var _durationMs: Long? = null
 ) {
 
-    // Публичные геттеры
     val index: ChapterIndex get() = _index
     val title: String? get() = _title
     val text: String? get() = _text
@@ -34,9 +26,6 @@ data class Chapter private constructor(
     val durationMs: Long? get() = _durationMs
 
     companion object {
-        /**
-         * Фабричный метод для создания главы с текстом.
-         */
         fun createWithText(
             bookId: BookId,
             index: ChapterIndex,
@@ -60,9 +49,6 @@ data class Chapter private constructor(
             )
         }
 
-        /**
-         * Фабричный метод для восстановления из БД.
-         */
         fun restore(
             id: ChapterId,
             bookId: BookId,
@@ -104,15 +90,11 @@ data class Chapter private constructor(
         }
     }
 
-    // ========== Domain Methods ==========
-
     fun hasText(): Boolean = !_text.isNullOrBlank()
     fun hasAudio(): Boolean = !_audioUrl.isNullOrBlank()
     fun hasTimings(): Boolean = !_timingUrl.isNullOrBlank()
     fun isPlayable(): Boolean = hasText() || hasAudio()
     fun durationAvailable(): Boolean = _durationMs != null || hasTimings()
-
-    // ========== Business Methods ==========
 
     fun updateText(newText: String): Chapter {
         if (newText.isBlank()) {
@@ -148,8 +130,6 @@ data class Chapter private constructor(
             _updatedAt = LocalDateTime.now()
         )
     }
-
-    // ========== Validation ==========
 
     private fun validate() {
         require(_index.value >= 0) { "Chapter index must be >= 0" }

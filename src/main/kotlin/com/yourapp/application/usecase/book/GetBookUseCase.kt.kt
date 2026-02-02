@@ -9,21 +9,16 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
-/**
- * Use Case: Получение книги по ID.
- */
 @Service
 class GetBookUseCase(
     private val repository: BookRepository
 ) : UseCase<UUID, BookResponse> {
 
     @Transactional(readOnly = true)
-    override fun execute(bookId: UUID): BookResponse {
-        // Используем твой репозиторий
-        val book = repository.findById(BookId(bookId))
-            ?: throw RuntimeException("Book with ID $bookId not found")
+    override fun execute(input: UUID): BookResponse {
+        val book = repository.findById(BookId(input))
+            ?: throw RuntimeException("Book with ID $input not found")
 
-        // Конвертируем Book в BookResponse
         return BookResponse(
             id = book.id.value,
             title = book.title,
@@ -34,13 +29,7 @@ class GetBookUseCase(
             hasText = book.hasText(),
             chapterCount = book.chapterCount(),
             chapters = book.chapters().map { chapter ->
-                ChapterResponse(
-                    id = chapter.id.value,
-                    title = chapter.title,
-                    index = chapter.index,
-                    hasAudio = chapter.audioUrl != null,
-                    hasText = chapter.content.isNotBlank()
-                )
+                ChapterResponse.fromDomain(chapter)
             }
         )
     }

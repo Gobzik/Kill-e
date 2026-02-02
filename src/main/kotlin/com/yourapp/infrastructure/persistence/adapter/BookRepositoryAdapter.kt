@@ -4,7 +4,7 @@ import com.yourapp.domain.exception.EntityNotFoundException
 import com.yourapp.domain.model.Book
 import com.yourapp.domain.model.BookId
 import com.yourapp.domain.model.Chapter
-import com.yourapp.domain.model.ChapterId
+import com.yourapp.domain.model.ChapterIndex
 import com.yourapp.domain.repository.BookRepository
 import com.yourapp.infrastructure.persistence.entity.BookEntityJpa
 import com.yourapp.infrastructure.persistence.entity.ChapterEntityJpa
@@ -12,7 +12,6 @@ import com.yourapp.infrastructure.persistence.repository.BookJpaRepository
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
-import java.util.*
 
 @Component
 @Transactional
@@ -46,10 +45,8 @@ class BookRepositoryAdapter(
         jpaRepository.deleteById(id.value)
     }
 
-    // ========== Mapper Methods ==========
 
     private fun toJpaEntity(domain: Book): BookEntityJpa {
-        // Создаем книгу без дат из domain (их нет)
         val bookJpa = BookEntityJpa(
             id = domain.id.value,
             title = domain.title,
@@ -58,43 +55,45 @@ class BookRepositoryAdapter(
             coverUrl = domain.coverUrl,
             hasAudio = domain.hasAudio(),
             hasText = domain.hasText(),
-            createdAt = LocalDateTime.now(), // Генерируем новую дату
+            createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
         )
 
-        // Создаем главы
         val chaptersJpa = domain.chapters().map { chapter ->
             ChapterEntityJpa(
                 id = chapter.id.value,
                 book = bookJpa,
-                title = chapter.title,
-                content = chapter.content,
-                index = chapter.index,
+                title = chapter.title ?: "",
+                content = chapter.text ?: "",
+                index = chapter.index.value,
                 audioUrl = chapter.audioUrl,
-                createdAt = LocalDateTime.now(), // Генерируем новую дату
+                createdAt = LocalDateTime.now(),
                 updatedAt = LocalDateTime.now()
             )
         }
 
-        bookJpa.chapters = chaptersJpa
+        bookJpa.chapters = chaptersJpa as MutableList<ChapterEntityJpa>
         return bookJpa
     }
 
     private fun toDomain(jpa: BookEntityJpa): Book {
-        // Создаем главы из JPA
         val chapters = jpa.chapters.map { chapterJpa ->
-            // Используем create, так как у Chapter нет restore без дат
-            Chapter.create(
+            Chapter.restore(
+                id = com.yourapp.domain.model.ChapterId.fromString(chapterJpa.id.toString()),
+                bookId = BookId(jpa.id),
+                index = ChapterIndex(chapterJpa.index),
                 title = chapterJpa.title,
-                content = chapterJpa.content,
-                index = chapterJpa.index,
+                text = chapterJpa.content,
                 audioUrl = chapterJpa.audioUrl,
-                bookId = BookId(jpa.id) // Передаем bookId
+                timingUrl = null,
+                createdAt = chapterJpa.createdAt,
+                updatedAt = chapterJpa.updatedAt,
+                durationMs = null
             )
         }
 
-        // Используем create для книги, игнорируя даты из JPA
-        return Book.create(
+        return Book.restore(
+            id = BookId(jpa.id),
             title = jpa.title,
             author = jpa.author,
             language = jpa.language,
@@ -102,8 +101,7 @@ class BookRepositoryAdapter(
             chapters = chapters,
             audio = jpa.hasAudio,
             text = jpa.hasText
-        ).copyWithId(BookId(jpa.id)) // Восстанавливаем ID
+        )
     }
 }
 
-}

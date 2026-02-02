@@ -30,7 +30,6 @@ data class BookEntityJpa(
     @Column(name = "has_text", nullable = false)
     var hasText: Boolean,
 
-    // Эти поля только в JPA, не в domain
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
@@ -44,7 +43,7 @@ data class BookEntityJpa(
         fetch = FetchType.LAZY
     )
     @OrderBy("index ASC")
-    var chapters: List<ChapterEntityJpa> = emptyList()
+    var chapters: MutableList<ChapterEntityJpa> = mutableListOf()
 )
 
 @Entity
@@ -71,7 +70,6 @@ data class ChapterEntityJpa(
     @Column(name = "audio_url", length = 500)
     var audioUrl: String? = null,
 
-    // Эти поля только в JPA, не в domain
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
 

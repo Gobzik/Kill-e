@@ -1,8 +1,5 @@
 package com.yourapp.application.dto.response
 
-/**
- * Generic API response wrapper
- */
 data class ApiResponse<T>(
     val success: Boolean,
     val data: T? = null,

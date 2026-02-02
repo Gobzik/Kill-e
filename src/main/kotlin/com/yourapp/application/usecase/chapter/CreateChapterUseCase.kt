@@ -1,6 +1,6 @@
 package com.yourapp.application.usecase.chapter
 
-import com.audiobook.domain.model.*
+import com.yourapp.domain.model.BookId
 import com.yourapp.domain.model.Chapter
 import com.yourapp.domain.model.ChapterIndex
 import com.yourapp.domain.repository.ChapterRepository
@@ -21,7 +21,6 @@ class CreateChapterUseCase(
         audioUrl: String?,
         timingUrl: String?
     ): Chapter {
-        // Проверка уникальности индекса
         if (chapterRepository.existsByBookIdAndIndex(bookId, index.value)) {
             throw IllegalArgumentException("Chapter with index $index already exists in book $bookId")
         }
@@ -34,12 +33,11 @@ class CreateChapterUseCase(
                 text = text
             )
         } else if (audioUrl != null) {
-            // Для аудио нужно создать сначала пустую главу, потом добавить аудио
             val emptyChapter = Chapter.createWithText(
                 bookId = bookId,
                 index = index,
                 title = title,
-                text = "Temporary text" // Заглушка
+                text = "Temporary text"
             )
             emptyChapter.addAudio(audioUrl, timingUrl)
         } else {
