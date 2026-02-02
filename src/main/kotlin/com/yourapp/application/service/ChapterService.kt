@@ -1,5 +1,6 @@
 package com.yourapp.application.service
 
+import com.yourapp.config.BookServiceProperties
 import com.yourapp.domain.model.BookId
 import com.yourapp.domain.model.Chapter
 import com.yourapp.domain.model.ChapterId
@@ -7,7 +8,9 @@ import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
 
 @Service
-class InMemoryChapterService {
+class ChapterService(
+    private val properties: BookServiceProperties
+) {
 
     private val chapters: MutableMap<ChapterId, Chapter> = ConcurrentHashMap()
 
@@ -15,6 +18,20 @@ class InMemoryChapterService {
         if (chapters.containsKey(chapter.id)) {
             throw IllegalArgumentException("Chapter with ID ${chapter.id} already exists")
         }
+
+        val chaptersInBook = chapters.values.count { it.bookId == chapter.bookId }
+        if (chaptersInBook >= properties.maxChaptersPerBook) {
+            throw IllegalStateException(
+                "Cannot create more than ${properties.maxChaptersPerBook} chapters for book ID ${chapter.bookId}"
+            )
+        }
+
+        if (chapter.text != null && chapter.text!!.length > properties.maxChapterLength) {
+            throw IllegalArgumentException(
+                "Chapter text length exceeds maximum of ${properties.maxChapterLength} characters"
+            )
+        }
+
         chapters[chapter.id] = chapter
         return chapter
     }

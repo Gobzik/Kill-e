@@ -25,3 +25,15 @@ server:
 logging:
   level:
     com.audiobook: DEBUG
+
+app:
+  book-service:
+    max-books: 100
+    forbidden-titles:
+      - "Test Book"
+      - "Sample Book"
+      - "Demo Book"
+      - "Example Book"
+      - "Dummy Book"
+    max-chapters-per-book: 50
+    max-chapter-length: 10000

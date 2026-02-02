@@ -1,5 +1,6 @@
 package com.yourapp.application.service
 
+import com.yourapp.config.BookServiceProperties
 import com.yourapp.domain.model.Book
 import com.yourapp.domain.model.BookId
 import com.yourapp.domain.model.Chapter
@@ -8,14 +9,23 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.collections.emptyList
 
-class InMemoryBookServiceTest {
+class BookServiceTest {
 
-    private lateinit var service: InMemoryBookService
+    private lateinit var service: BookService
+    private lateinit var properties: BookServiceProperties
 
     @BeforeEach
     fun setUp() {
-        service = InMemoryBookService()
+        properties = BookServiceProperties(
+            maxBooks = 100,
+            forbiddenTitles = emptyList(),
+            maxChaptersPerBook = 50,
+            maxChapterLength = 5000
+        )
+
+        service = BookService(properties)
         service.clear()
     }
 

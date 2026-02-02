@@ -4,15 +4,27 @@ import com.yourapp.domain.model.Book
 import com.yourapp.domain.model.BookId
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
+import com.yourapp.config.BookServiceProperties
 
 @Service
-class InMemoryBookService {
+class BookService(
+    private val properties: BookServiceProperties
+) {
     private val books: MutableMap<BookId, Book> = ConcurrentHashMap()
 
     fun create(book: Book): Book {
         if (books.containsKey(book.id)) {
             throw IllegalArgumentException("Book with ID ${book.id} already exists")
         }
+
+        if (books.size >= properties.maxBooks) {
+            throw IllegalStateException("Cannot create more than ${properties.maxBooks} books")
+        }
+
+        if (properties.forbiddenTitles.contains(book.title)) {
+            throw IllegalArgumentException("The title '${book.title}' is forbidden")
+        }
+
         books[book.id] = book
         return book
     }
