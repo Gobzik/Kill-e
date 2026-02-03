@@ -19,12 +19,18 @@ spring:
       enabled: true
       path: /h2-console
 
+  profiles:
+    active: dev
+
 server:
   port: 8080
 
 logging:
   level:
+    com.yourapp: DEBUG
     com.audiobook: DEBUG
+    org.springframework: WARN
+    org.hibernate: WARN
 
 app:
   book-service:
@@ -37,3 +43,17 @@ app:
       - "Dummy Book"
     max-chapters-per-book: 50
     max-chapter-length: 10000
+
+  logging:
+    use-cases:
+      enabled: true
+      include-args: true
+      include-result: true
+    repositories:
+      enabled: true
+      include-args: false
+      include-result: false
+      slow-query-threshold-ms: 500
+    controllers:
+      enabled: true
+      include-headers: false
