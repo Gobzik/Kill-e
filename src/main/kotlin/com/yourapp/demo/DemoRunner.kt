@@ -52,14 +52,18 @@ class DemoRunner(
 
         logger.info("")
         logger.info("1. Creating a book...")
+
+        val bookId = BookId.generate()
+
         val chapter1 = Chapter.createWithText(
-            bookId = BookId.generate(),
+            bookId = bookId,
             index = ChapterIndex(0),
             title = "Introduction",
             text = "This is the text of the first chapter"
         )
 
-        val book1 = Book.create(
+        val book1 = Book.createWithId(
+            id = bookId,
             title = "War and Peace",
             author = "Leo Tolstoy",
             language = "en",
@@ -98,14 +102,18 @@ class DemoRunner(
 
         logger.info("")
         logger.info("3. Creating a second book...")
+
+        val bookId2 = BookId.generate()
+
         val chapter2 = Chapter.createWithText(
-            bookId = BookId.generate(),
+            bookId = bookId2,
             index = ChapterIndex(0),
             title = "Chapter 1",
             text = "Content of chapter 1"
         )
 
-        val book2 = Book.create(
+        val book2 = Book.createWithId(
+            id = bookId2,
             title = "Master and Margarita",
             author = "Mikhail Bulgakov",
             language = "en",
@@ -208,7 +216,8 @@ class DemoRunner(
             text = "Test chapter text"
         )
 
-        val testBook = Book.create(
+        val testBook = Book.createWithId(
+            id = testBookId,
             title = "Test book for chapters",
             author = "Test author",
             language = "en",
@@ -353,14 +362,16 @@ class DemoRunner(
         logger.info("   INFO: Forbidden titles: ${properties.forbiddenTitles}")
 
         val forbiddenTitle = properties.forbiddenTitles.firstOrNull() ?: "Test Book"
+        val forbiddenBookId = BookId.generate()
         val forbiddenChapter = Chapter.createWithText(
-            bookId = BookId.generate(),
+            bookId = forbiddenBookId,
             index = ChapterIndex(0),
             title = "Chapter",
             text = "Text"
         )
 
-        val forbiddenBook = Book.create(
+        val forbiddenBook = Book.createWithId(
+            id = forbiddenBookId,
             title = forbiddenTitle,
             author = "Test author",
             language = "en",
@@ -404,7 +415,8 @@ class DemoRunner(
             title = "Temp",
             text = "temp"
         )
-        val tempBook = Book.create(
+        val tempBook = Book.createWithId(
+            id = bookForLongChapter,
             title = "Temporary book",
             author = "Author",
             language = "en",
@@ -443,7 +455,8 @@ class DemoRunner(
             title = "Start",
             text = "text"
         )
-        val bookForManyChapters = Book.create(
+        val bookForManyChapters = Book.createWithId(
+            id = bookForChapters,
             title = "Book with chapters",
             author = "Author",
             language = "en",
