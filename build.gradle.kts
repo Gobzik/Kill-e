@@ -13,7 +13,7 @@ description = "Kill-e"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
@@ -30,6 +30,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
     runtimeOnly("org.postgresql:postgresql")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
