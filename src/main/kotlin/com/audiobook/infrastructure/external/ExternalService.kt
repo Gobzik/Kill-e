@@ -1,4 +1,4 @@
-package com.yourapp.infrastructure.external
+package com.audiobook.infrastructure.external
 
 /**
  * This package is for external service integrations

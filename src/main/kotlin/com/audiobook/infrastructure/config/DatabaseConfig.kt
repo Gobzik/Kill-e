@@ -1,4 +1,4 @@
-package com.yourapp.infrastructure.config
+package com.audiobook.infrastructure.config
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
  * Configure JPA repositories and transaction management
  */
 @Configuration
-@EnableJpaRepositories(basePackages = ["com.yourapp.infrastructure.persistence.repository"])
+@EnableJpaRepositories(basePackages = ["com.audiobook.infrastructure.persistence.repository"])
 @EnableTransactionManagement
 class DatabaseConfig {
     // Additional database configurations can be added here

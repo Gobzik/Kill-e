@@ -1,6 +1,6 @@
-package com.yourapp.domain.model
+package com.audiobook.domain.model
 
-import com.yourapp.domain.exception.DomainException
+import com.audiobook.domain.exception.DomainException
 import java.time.LocalDateTime
 import java.util.UUID
 

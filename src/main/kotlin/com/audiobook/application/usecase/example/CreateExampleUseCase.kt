@@ -1,12 +1,12 @@
-package com.yourapp.application.usecase.example
+package com.audiobook.application.usecase.example
 
-import com.yourapp.application.dto.request.CreateExampleRequest
-import com.yourapp.application.dto.response.ExampleResponse
-import com.yourapp.application.usecase.UseCase
-import com.yourapp.domain.model.ExampleEntity
-import com.yourapp.domain.model.Priority
-import com.yourapp.domain.repository.ExampleRepository
-import com.yourapp.presentation.mapper.ExampleMapper
+import com.audiobook.application.dto.request.CreateExampleRequest
+import com.audiobook.application.dto.response.ExampleResponse
+import com.audiobook.application.usecase.UseCase
+import com.audiobook.domain.model.ExampleEntity
+import com.audiobook.domain.model.Priority
+import com.audiobook.domain.repository.ExampleRepository
+import com.audiobook.presentation.mapper.ExampleMapper
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

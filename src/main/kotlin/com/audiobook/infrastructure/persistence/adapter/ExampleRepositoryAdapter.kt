@@ -1,12 +1,12 @@
-package com.yourapp.infrastructure.persistence.adapter
+package com.audiobook.infrastructure.persistence.adapter
 
-import com.yourapp.domain.exception.EntityNotFoundException
-import com.yourapp.domain.model.*
-import com.yourapp.domain.repository.ExampleRepository
-import com.yourapp.infrastructure.persistence.entity.ExampleEntityJpa
-import com.yourapp.infrastructure.persistence.entity.PriorityJpa
-import com.yourapp.infrastructure.persistence.entity.TaskStatusJpa
-import com.yourapp.infrastructure.persistence.repository.ExampleJpaRepository
+import com.audiobook.domain.exception.EntityNotFoundException
+import com.audiobook.domain.model.*
+import com.audiobook.domain.repository.ExampleRepository
+import com.audiobook.infrastructure.persistence.entity.ExampleEntityJpa
+import com.audiobook.infrastructure.persistence.entity.PriorityJpa
+import com.audiobook.infrastructure.persistence.entity.TaskStatusJpa
+import com.audiobook.infrastructure.persistence.repository.ExampleJpaRepository
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID

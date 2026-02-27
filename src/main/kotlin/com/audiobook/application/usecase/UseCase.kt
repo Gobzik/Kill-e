@@ -1,4 +1,4 @@
-package com.yourapp.application.usecase
+package com.audiobook.application.usecase
 
 /**
  * Base interface for all use cases

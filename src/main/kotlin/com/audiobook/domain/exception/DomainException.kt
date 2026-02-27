@@ -1,4 +1,4 @@
-package com.yourapp.domain.exception
+package com.audiobook.domain.exception
 
 /**
  * Base exception for domain layer

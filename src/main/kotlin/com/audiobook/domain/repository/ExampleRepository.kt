@@ -1,9 +1,9 @@
-package com.yourapp.domain.repository
+package com.audiobook.domain.repository
 
-import com.yourapp.domain.model.ExampleEntity
-import com.yourapp.domain.model.ExampleEntityId
-import com.yourapp.domain.model.Priority
-import com.yourapp.domain.model.TaskStatus
+import com.audiobook.domain.model.ExampleEntity
+import com.audiobook.domain.model.ExampleEntityId
+import com.audiobook.domain.model.Priority
+import com.audiobook.domain.model.TaskStatus
 
 /**
  * Интерфейс репозитория для ExampleEntity.

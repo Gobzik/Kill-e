@@ -1,4 +1,4 @@
-package com.yourapp.application.dto.response
+package com.audiobook.application.dto.response
 
 /**
  * Generic API response wrapper

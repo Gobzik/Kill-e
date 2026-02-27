@@ -1,10 +1,10 @@
-package com.yourapp.presentation.controller
+package com.audiobook.presentation.controller
 
-import com.yourapp.application.dto.request.CreateExampleRequest
-import com.yourapp.application.dto.response.ApiResponse
-import com.yourapp.application.dto.response.ExampleResponse
-import com.yourapp.application.usecase.example.CreateExampleUseCase
-import com.yourapp.application.usecase.example.GetAllExamplesUseCase
+import com.audiobook.application.dto.request.CreateExampleRequest
+import com.audiobook.application.dto.response.ApiResponse
+import com.audiobook.application.dto.response.ExampleResponse
+import com.audiobook.application.usecase.example.CreateExampleUseCase
+import com.audiobook.application.usecase.example.GetAllExamplesUseCase
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

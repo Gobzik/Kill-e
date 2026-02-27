@@ -1,8 +1,8 @@
-package com.yourapp.infrastructure.persistence.repository
+package com.audiobook.infrastructure.persistence.repository
 
-import com.yourapp.infrastructure.persistence.entity.ExampleEntityJpa
-import com.yourapp.infrastructure.persistence.entity.PriorityJpa
-import com.yourapp.infrastructure.persistence.entity.TaskStatusJpa
+import com.audiobook.infrastructure.persistence.entity.ExampleEntityJpa
+import com.audiobook.infrastructure.persistence.entity.PriorityJpa
+import com.audiobook.infrastructure.persistence.entity.TaskStatusJpa
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.UUID

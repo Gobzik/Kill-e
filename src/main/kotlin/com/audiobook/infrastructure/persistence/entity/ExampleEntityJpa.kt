@@ -1,4 +1,4 @@
-package com.yourapp.infrastructure.persistence.entity
+package com.audiobook.infrastructure.persistence.entity
 
 import jakarta.persistence.*
 import java.time.LocalDateTime

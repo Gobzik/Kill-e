@@ -1,7 +1,7 @@
-package com.yourapp.presentation.mapper
+package com.audiobook.presentation.mapper
 
-import com.yourapp.application.dto.response.ExampleResponse
-import com.yourapp.domain.model.ExampleEntity
+import com.audiobook.application.dto.response.ExampleResponse
+import com.audiobook.domain.model.ExampleEntity
 import org.springframework.stereotype.Component
 
 /**
