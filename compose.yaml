@@ -1,1 +1,48 @@
-services: { }
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kille-postgres
+    environment:
+      POSTGRES_DB: killedb
+      POSTGRES_USER: killeuser
+      POSTGRES_PASSWORD: killepass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U killeuser -d killedb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kille-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kille-app
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/killedb
+      SPRING_DATASOURCE_USERNAME: killeuser
+      SPRING_DATASOURCE_PASSWORD: killepass
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - kille-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  kille-network:
+    driver: bridge
