@@ -21,12 +21,8 @@ COPY gradle ./gradle
 COPY src ./src
 RUN chmod +x ./gradlew && ./gradlew clean build --no-daemon -x test
 
-FROM bitnami/gradle:latest
+FROM eclipse-temurin:24-jre
 USER root
-RUN rm -rf /opt/bitnami/gradle
-COPY --from=builder /opt/jdk-24 /opt/jdk-24
-ENV JAVA_HOME=/opt/jdk-24
-ENV PATH=$JAVA_HOME/bin:$PATH
 WORKDIR /app
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 COPY --from=builder /app/build/libs /app/build/libs
