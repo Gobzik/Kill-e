@@ -16,10 +16,10 @@ RUN set -e; \
 ENV JAVA_HOME=/opt/jdk-24
 ENV PATH=$JAVA_HOME/bin:$PATH
 WORKDIR /app
-COPY build.gradle.kts settings.gradle.kts ./
+COPY build.gradle.kts settings.gradle.kts gradlew ./
 COPY gradle ./gradle
 COPY src ./src
-RUN gradle clean build --no-daemon -x test
+RUN chmod +x ./gradlew && ./gradlew clean build --no-daemon -x test
 
 FROM bitnami/gradle:latest
 USER root
