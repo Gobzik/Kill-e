@@ -29,7 +29,12 @@ ENV JAVA_HOME=/opt/jdk-24
 ENV PATH=$JAVA_HOME/bin:$PATH
 WORKDIR /app
 RUN groupadd -r appuser && useradd -r -g appuser appuser
-COPY --from=builder /app/build/libs/*.jar app.jar
+COPY --from=builder /app/build/libs /app/build/libs
+RUN set -e; \
+    JAR_FILES=$(ls /app/build/libs/*.jar 2>/dev/null | grep -v '\-plain\.jar' || true); \
+    if [ -z "$JAR_FILES" ]; then echo "No non-plain JAR found in /app/build/libs"; exit 1; fi; \
+    if [ "$(echo "$JAR_FILES" | wc -l)" -ne 1 ]; then echo "Expected exactly one non-plain JAR, found:"; echo "$JAR_FILES"; exit 1; fi; \
+    cp "$JAR_FILES" /app/app.jar
 USER appuser
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
