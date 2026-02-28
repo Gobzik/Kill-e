@@ -5,12 +5,13 @@ USER root
 RUN install_packages wget
 RUN set -e; \
     case "$TARGETARCH" in \
-      "amd64") JDK_ARCH="x64" ;; \
-      "arm64") JDK_ARCH="aarch64" ;; \
+      "amd64") JDK_ARCH="x64"; JDK_SHA256="88b090fa80c6c1d084ec9a755233967458788e2c0777ae2e172230c5c692d7ef" ;; \
+      "arm64") JDK_ARCH="aarch64"; JDK_SHA256="a03867ed061c7bb661231e62b0967ff5a5a0b1bbaa37bdead3a924bd2ba3215f" ;; \
       *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1 ;; \
     esac; \
     JDK_TARBALL="openjdk-24_linux-${JDK_ARCH}_bin.tar.gz"; \
     wget "https://download.java.net/java/GA/jdk24/1f9ff9062db4449d8ca828c504ffae90/36/GPL/${JDK_TARBALL}" && \
+    echo "${JDK_SHA256}  ${JDK_TARBALL}" | sha256sum -c - && \
     tar -xzf "${JDK_TARBALL}" && \
     mv jdk-24 /opt/jdk-24 && \
     rm "${JDK_TARBALL}"
