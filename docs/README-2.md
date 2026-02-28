@@ -7,6 +7,9 @@
 - [Быстрый старт](#быстрый-старт)
 - [Команды для управления](#команды-для-управления)
 - [Схема работы приложения](#схема-работы-приложения)
+- [Разбор по шагам Dockerfile](#разбор-по-шагам-Dockerfile)
+- [Разбор секций docker-compose.yml](#разбор-секций-docker-compose.yml)
+- [ENV-переменные](#ENV-переменные)
 
 ## Требования
 
@@ -50,7 +53,7 @@ graph TD
     style E fill:#bfb,stroke:#333,stroke-width:2px
     style F fill:#ff9,stroke:#333,stroke-width:2px
 ```
-## Разбор по шагам
+## Разбор по шагам Dockerfile
 ```dockerfile
 # ========== ЭТАП 1: СБОРЩИК (BUILDER) ==========
 # Берем готовый образ с Gradle для сборки проекта
@@ -129,7 +132,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 | healthcheck | Проверка готовности БД | pg_isready гарантирует, что app не стартует раньше БД |
 | networks: kille-network | Изолированная сеть | Контейнеры видят друг друга по именам сервисов |
 
-### Сервис app (ваше Spring-приложение)
+### Сервис app (Spring-приложение)
 
 | Секция | Значение | Зачем нужно |
 |--------|----------|-------------|
@@ -143,10 +146,10 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 ###  Секции volumes и networks
 
-volumes:
+#### volumes:
   postgres_data:  # Docker создаёт managed volume автоматически
 
-networks:
+#### networks:
   kille-network:
     driver: bridge  # Стандартная изолированная сеть Docker
 ---
