@@ -10,7 +10,7 @@ COPY gradle ./gradle
 COPY build.gradle.kts settings.gradle.kts ./
 
 # Download dependencies (cached layer)
-RUN ./gradlew dependencies --no-daemon || true
+RUN ./gradlew dependencies --no-daemon
 
 # Copy source code
 COPY src ./src
