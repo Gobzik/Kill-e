@@ -144,7 +144,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 | networks: kille-network | Та же сеть, что у postgres | Приложение резолвит postgres как hostname |
 | restart: unless-stopped | Автоперезапуск при сбоях | Повышает отказоустойчивость |
 
-###  Секции volumes и networks
+### Секции volumes и networks
 
 #### volumes:
   postgres_data:  # Docker создаёт managed volume автоматически
@@ -154,9 +154,9 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
     driver: bridge  # Стандартная изолированная сеть Docker
 ---
 
-##  ENV-переменные
+## ENV-переменные
 
-###  Для PostgreSQL
+### Для PostgreSQL
 
 | Переменная | Описание | Пример |
 |------------|----------|--------|
@@ -168,7 +168,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 ---
 
-###  Для Spring Boot приложения
+### Для Spring Boot приложения
 
 | Переменная | Описание | Значение по умолчанию |
 |------------|----------|----------------------|
