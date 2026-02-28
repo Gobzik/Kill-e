@@ -1,4 +1,5 @@
-FROM bitnami/gradle:latest AS builder
+# bitnami/gradle:latest as of 2026-02-24
+FROM bitnami/gradle:latest@sha256:64d73355296cbbe3c8e167ebdab985e9856fcc7717ea9f0ed915bed7ba7c1ebc AS builder
 ARG TARGETARCH
 USER root
 RUN install_packages wget
@@ -21,7 +22,8 @@ COPY gradle ./gradle
 COPY src ./src
 RUN chmod +x ./gradlew && ./gradlew clean build --no-daemon -x test
 
-FROM eclipse-temurin:24-jre
+# eclipse-temurin:24-jre as of 2026-02-28
+FROM eclipse-temurin:24-jre@sha256:8cb2387a28af84cf0db0948d9c67d4480192f4e567027a3963f145d218e8b4f2
 USER root
 WORKDIR /app
 RUN groupadd -r appuser && useradd -r -g appuser appuser
