@@ -17,5 +17,7 @@ data class AddChapterRequest(
     val audioUrl: String? = null,
 
     @field:Min(value = 1, message = "Chapter index must be at least 1")
-    val index: Int
+    val index: Int,
+
+    val durationMs: Long? = null
 )

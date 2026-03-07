@@ -94,7 +94,8 @@ class BookController(
             title = request.title,
             content = request.content,
             index = request.index,
-            audioUrl = request.audioUrl
+            audioUrl = request.audioUrl,
+            durationMs = request.durationMs
         )
         val result = addChapterUseCase.execute(command)
         return ResponseEntity
