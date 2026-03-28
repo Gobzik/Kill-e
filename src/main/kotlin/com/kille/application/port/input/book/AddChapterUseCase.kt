@@ -31,7 +31,7 @@ class AddChapterUseCase(
             chapter = chapter.updateDuration(input.durationMs)
         }
 
-        if (input.audioUrl != null) {
+        if (!input.audioUrl.isNullOrBlank()) {
             chapter = chapter.addAudio(input.audioUrl, null)
         }
 
