@@ -193,10 +193,12 @@ class S3StorageService(
                 .contentLength(file.size)
                 .build()
 
-            s3Client.putObject(
-                request,
-                RequestBody.fromInputStream(file.inputStream, file.size)
-            )
+            file.inputStream.use { inputStream ->
+                s3Client.putObject(
+                    request,
+                    RequestBody.fromInputStream(inputStream, file.size)
+                )
+            }
 
             logger.info("File uploaded successfully: $key")
             return key
