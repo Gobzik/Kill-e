@@ -24,5 +24,10 @@ data class S3Properties @ConstructorBinding constructor(
     @field:NotBlank
     val bucket: String,
 
+    @field:NotBlank
+    val chaptersPrefix: String = "books",
+
+    val pathStyleAccessEnabled: Boolean = true,
+
     val presignedUrlExpirationHours: Long = 1
 )
