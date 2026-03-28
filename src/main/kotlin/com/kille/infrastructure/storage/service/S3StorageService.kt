@@ -1,7 +1,9 @@
-package com.kille.infrastructure.storage.adapter
+package com.kille.infrastructure.storage.service
 
 import com.kille.application.port.output.StoragePort
 import com.kille.config.S3Properties
+import com.kille.infrastructure.storage.dto.ChapterFiles
+import com.kille.infrastructure.storage.dto.FileUploadResult
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
@@ -25,7 +27,7 @@ import java.time.Duration
 import java.util.UUID
 
 @Service
-class S3StorageAdapter(
+class S3StorageService(
     private val s3Client: S3Client,
     private val s3Presigner: S3Presigner,
     private val properties: S3Properties
@@ -44,22 +46,22 @@ class S3StorageAdapter(
         chapterId: UUID,
         file: MultipartFile
     ): String {
-        val key = generateKey(bookId, chapterId, AUDIO_FILE)
+        val key = generateChapterKey(bookId, chapterId, AUDIO_FILE)
         return uploadFile(key, file)
     }
 
     override fun uploadText(bookId: UUID, chapterId: UUID, content: String): String {
-        val key = generateKey(bookId, chapterId, TEXT_FILE)
+        val key = generateChapterKey(bookId, chapterId, TEXT_FILE)
         return uploadContent(key, content, "text/plain")
     }
 
     override fun uploadTimings(bookId: UUID, chapterId: UUID, timings: String): String {
-        val key = generateKey(bookId, chapterId, TIMINGS_FILE)
+        val key = generateChapterKey(bookId, chapterId, TIMINGS_FILE)
         return uploadContent(key, timings, "application/json")
     }
 
     override fun getAudioUrl(bookId: UUID, chapterId: UUID): String? {
-        val key = generateKey(bookId, chapterId, AUDIO_FILE)
+        val key = generateChapterKey(bookId, chapterId, AUDIO_FILE)
         return try {
             if (fileExists(key)) {
                 generatePresignedUrl(key)
@@ -73,7 +75,7 @@ class S3StorageAdapter(
     }
 
     override fun getText(bookId: UUID, chapterId: UUID): String? {
-        val key = generateKey(bookId, chapterId, TEXT_FILE)
+        val key = generateChapterKey(bookId, chapterId, TEXT_FILE)
         return try {
             getFileContent(key)
         } catch (e: S3Exception) {
@@ -83,7 +85,7 @@ class S3StorageAdapter(
     }
 
     override fun getTimings(bookId: UUID, chapterId: UUID): String? {
-        val key = generateKey(bookId, chapterId, TIMINGS_FILE)
+        val key = generateChapterKey(bookId, chapterId, TIMINGS_FILE)
         return try {
             getFileContent(key)
         } catch (e: S3Exception) {
@@ -93,7 +95,7 @@ class S3StorageAdapter(
     }
 
     override fun deleteChapterFiles(bookId: UUID, chapterId: UUID) {
-        val prefix = "books/${bookId.toString()}/${chapterId.toString()}/"
+        val prefix = chapterPrefix(bookId, chapterId)
         try {
             val objectsToDelete = listObjects(prefix)
 
@@ -117,7 +119,7 @@ class S3StorageAdapter(
     }
 
     override fun chapterExists(bookId: UUID, chapterId: UUID): Boolean {
-        val prefix = "books/${bookId.toString()}/${chapterId.toString()}"
+        val prefix = chapterPrefix(bookId, chapterId)
         return try {
             listObjects(prefix).isNotEmpty()
         } catch (e: S3Exception) {
@@ -127,7 +129,7 @@ class S3StorageAdapter(
     }
 
     override fun getAudioInputStream(bookId: UUID, chapterId: UUID): InputStream? {
-        val key = generateKey(bookId, chapterId, AUDIO_FILE)
+        val key = generateChapterKey(bookId, chapterId, AUDIO_FILE)
         return try {
             if (fileExists(key)) {
                 val request = GetObjectRequest.builder()
@@ -144,8 +146,42 @@ class S3StorageAdapter(
         }
     }
 
-    private fun generateKey(bookId: UUID, chapterId: UUID, filename: String): String {
-        return "books/${bookId.toString()}/${chapterId.toString()}/$filename"
+    fun uploadChapterFiles(
+        bookId: UUID,
+        chapterId: UUID,
+        audioFile: MultipartFile? = null,
+        textContent: String? = null,
+        timingsContent: String? = null
+    ): FileUploadResult {
+        val audioKey = audioFile?.let { uploadAudio(bookId, chapterId, it) }
+        val textKey = textContent?.let { uploadText(bookId, chapterId, it) }
+        val timingsKey = timingsContent?.let { uploadTimings(bookId, chapterId, it) }
+
+        return FileUploadResult(
+            audioKey = audioKey,
+            textKey = textKey,
+            timingsKey = timingsKey
+        )
+    }
+
+    fun getChapterFiles(bookId: UUID, chapterId: UUID): ChapterFiles {
+        return ChapterFiles(
+            audioUrl = getAudioUrl(bookId, chapterId),
+            textContent = getText(bookId, chapterId),
+            timingsContent = getTimings(bookId, chapterId)
+        )
+    }
+
+    private fun generateChapterKey(bookId: UUID, chapterId: UUID, filename: String): String {
+        return "${normalizedPrefix()}/${bookId}/${chapterId}/$filename"
+    }
+
+    private fun chapterPrefix(bookId: UUID, chapterId: UUID): String {
+        return "${normalizedPrefix()}/${bookId}/${chapterId}/"
+    }
+
+    private fun normalizedPrefix(): String {
+        return properties.chaptersPrefix.trim().trim('/')
     }
 
     private fun uploadFile(key: String, file: MultipartFile): String {
@@ -224,6 +260,14 @@ class S3StorageAdapter(
             )
             return true
         } catch (_: NoSuchKeyException) {
+            return false
+        } catch (e: S3Exception) {
+            if (e.statusCode() == 404) {
+                return false
+            }
+            throw e
+        } catch (e: SdkException) {
+            logger.error("Failed to check file existence: $key", e)
             return false
         }
     }
