@@ -15,14 +15,11 @@ data class S3Properties @ConstructorBinding constructor(
     @field:NotBlank
     val region: String = "ru-central1",
 
-    @field:NotBlank
-    val accessKey: String,
+    val accessKey: String = "",
 
-    @field:NotBlank
-    val secretKey: String,
+    val secretKey: String = "",
 
-    @field:NotBlank
-    val bucket: String,
+    val bucket: String = "",
 
     @field:NotBlank
     val chaptersPrefix: String = "books",
