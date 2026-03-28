@@ -11,9 +11,3 @@ data class FileUploadResult(
     val textKey: String?,
     val timingsKey: String?
 )
-
-enum class FileType {
-    AUDIO,
-    TEXT,
-    TIMINGS
-}
