@@ -23,7 +23,13 @@ class CreateBookUseCase(
         val bookId = BookId.generate()
 
         val chapters = input.chapters.mapNotNull { chapterRequest ->
+            // Skip chapters that have neither text nor audio.
             if (chapterRequest.text.isNullOrBlank() && chapterRequest.audioUrl.isNullOrBlank()) {
+                return@mapNotNull null
+            }
+
+            // Audio-only chapters (no text, but audio present) are not created via createWithText.
+            if (chapterRequest.text.isNullOrBlank()) {
                 return@mapNotNull null
             }
 
@@ -31,7 +37,7 @@ class CreateBookUseCase(
                 bookId = bookId,
                 index = ChapterIndex(chapterRequest.index),
                 title = chapterRequest.title,
-                text = chapterRequest.text ?: ""
+                text = chapterRequest.text!!
             )
             if (chapterRequest.durationMs != null) {
                 chapter = chapter.updateDuration(chapterRequest.durationMs)
