@@ -27,6 +27,10 @@ class AddChapterUseCase(
             text = input.content
         )
 
+        if (input.durationMs != null) {
+            chapter.updateDuration(input.durationMs)
+        }
+
         book.addChapter(chapter)
         repository.save(book)
 
@@ -39,5 +43,6 @@ data class AddChapterCommand(
     val title: String,
     val content: String,
     val index: Int,
-    val audioUrl: String? = null
+    val audioUrl: String? = null,
+    val durationMs: Long? = null
 )

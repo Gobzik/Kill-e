@@ -3,7 +3,6 @@ package com.kille.presentation.dto.request
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Size
 
 data class CreateBookRequest(
@@ -27,9 +26,8 @@ data class CreateBookRequest(
 
     val text: Boolean = true,
 
-    @field:NotEmpty(message = "Book must contain at least one chapter")
     @field:Valid
-    val chapters: List<ChapterData>
+    val chapters: List<ChapterData> = emptyList()
 )
 
 
@@ -42,5 +40,7 @@ data class ChapterData(
 
     val text: String? = null,
 
-    val audioUrl: String? = null
+    val audioUrl: String? = null,
+
+    val durationMs: Long? = null
 )

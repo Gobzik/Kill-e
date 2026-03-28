@@ -35,7 +35,12 @@ class Book private constructor(
         }
     }
     fun addChapter(chapter: Chapter) {
-        validateChapters(_chapters, this.id)
+        if (chapter.bookId != this.id) {
+            throw DomainException("Глава принадлежит другой книге")
+        }
+        if (_chapters.any { it.index == chapter.index }) {
+            throw DomainException("Глава с индексом ${chapter.index} уже существует в книге ${this.id}")
+        }
         _chapters.add(chapter)
         ensureSorting()
     }
@@ -76,10 +81,6 @@ class Book private constructor(
         }
 
         private fun validateChapters(chapters: List<Chapter>, bookId: BookId? = null) {
-            if (chapters.isEmpty()) {
-                throw DomainException("Книга должна содержать минимум 1 главу")
-            }
-
             if (bookId != null) {
                 val invalidChapters = chapters.filter { it.bookId != bookId }
                 if (invalidChapters.isNotEmpty()) {
@@ -101,7 +102,6 @@ class Book private constructor(
             val hasText = chapters.any { it.hasText() }
             validateTitle(title)
             validateAuthor(author)
-            validateChapters(chapters)
             return Book(
                 id = BookId.generate(),
                 _title = title,
