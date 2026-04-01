@@ -14,4 +14,6 @@ interface ChapterRepository {
     fun existsById(id: ChapterId): Boolean
     fun existsByBookIdAndIndex(bookId: BookId, index: Int): Boolean
     fun countByBookId(bookId: BookId): Int
+    fun findByIdAndBookId(chapterId: Long, bookId: Long): Chapter?
 }
+

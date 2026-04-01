@@ -21,6 +21,9 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.http.MediaType
+import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/chapters")
@@ -114,3 +117,16 @@ data class UpdateChapterRequest(
     val audioUrl: String? = null,
     val timingUrl: String? = null
 )
+
+@PostMapping(
+    "/api/v1/books/{bookId}/chapters/{chapterId}/audio",
+    consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
+)
+fun uploadChapterAudio(
+    @PathVariable bookId: Long,
+    @PathVariable chapterId: Long,
+    @RequestPart("audio", required = false) audio: MultipartFile?
+): ResponseEntity<ChapterDto> {
+    val chapter = chapterService.uploadChapterAudio(bookId, chapterId, audio)
+    return ResponseEntity.ok(chapter)
+}
