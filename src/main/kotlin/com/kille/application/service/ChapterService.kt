@@ -84,3 +84,26 @@ class ChapterService(
         chapters.clear()
     }
 }
+
+@Transactional
+fun uploadChapterAudio(
+    bookId: Long,
+    chapterId: Long,
+    audio: MultipartFile
+): ChapterDto {
+    val chapter = chapterRepository.findByIdAndBookId(chapterId, bookId)
+        ?: throw NotFoundException("Chapter not found")
+
+    val result = storageService.uploadChapterFiles(
+        bookId = bookId,
+        chapterId = chapterId,
+        audio = audio,
+        text = null,
+        timings = null
+    )
+
+    chapter.audioUrl = result.audioKey
+    chapterRepository.save(chapter)
+
+    return chapterMapper.toDto(chapter)
+}
