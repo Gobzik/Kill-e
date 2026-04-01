@@ -16,4 +16,3 @@ interface ChapterRepository {
     fun countByBookId(bookId: BookId): Int
     fun findByIdAndBookId(chapterId: Long, bookId: Long): Chapter?
 }
-
