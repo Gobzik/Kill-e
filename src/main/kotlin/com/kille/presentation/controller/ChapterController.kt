@@ -1,9 +1,13 @@
 package com.kille.presentation.controller
 
 import com.kille.presentation.dto.request.CreateChapterRequest
+import com.kille.presentation.dto.request.GenerateTimingsRequest
 import com.kille.presentation.dto.response.ApiResponse
 import com.kille.presentation.dto.response.ChapterResponse
 import com.kille.application.port.input.chapter.CreateChapterUseCase
+import com.kille.application.port.input.chapter.GenerateChapterTimingsCommand
+import com.kille.application.port.input.chapter.GenerateChapterTimingsResult
+import com.kille.application.port.input.chapter.GenerateChapterTimingsUseCase
 import com.kille.application.port.input.chapter.GetPlayableChaptersUseCase
 import com.kille.application.port.input.chapter.GetChapterUseCase
 import com.kille.application.port.input.chapter.UpdateChapterUseCase
@@ -23,6 +27,7 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Chapters", description = "API для управления главами")
 class ChapterController(
     private val createChapterUseCase: CreateChapterUseCase,
+    private val generateChapterTimingsUseCase: GenerateChapterTimingsUseCase,
     private val getPlayableChaptersUseCase: GetPlayableChaptersUseCase,
     private val getChapterUseCase: GetChapterUseCase,
     private val updateChapterUseCase: UpdateChapterUseCase,
@@ -48,6 +53,22 @@ class ChapterController(
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(ApiResponse.success(ChapterResponse.fromDomain(chapter), "Глава успешно создана"))
+    }
+
+    @PostMapping("/{id}/timings")
+    @Operation(summary = "Сгенерировать тайминги", description = "Генерирует тайминги слов из аудио и сохраняет timings.json в S3")
+    fun generateTimings(
+        @PathVariable id: String,
+        @RequestBody(required = false) request: GenerateTimingsRequest?
+    ): ResponseEntity<ApiResponse<GenerateChapterTimingsResult>> {
+        val result = generateChapterTimingsUseCase.execute(
+            GenerateChapterTimingsCommand(
+                chapterId = id,
+                audioUrl = request?.audioUrl
+            )
+        )
+
+        return ResponseEntity.ok(ApiResponse.success(result, "Тайминги успешно сгенерированы"))
     }
 
     @GetMapping("/book/{bookId}/playable")
