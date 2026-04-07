@@ -7,7 +7,6 @@ import com.kille.application.port.output.WordTiming
 import com.kille.domain.model.ChapterId
 import com.kille.domain.repository.ChapterRepository
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 data class GenerateChapterTimingsCommand(
     val chapterId: String,
@@ -29,7 +28,6 @@ class GenerateChapterTimingsUseCase(
     private val objectMapper: ObjectMapper
 ) {
 
-    @Transactional
     fun execute(command: GenerateChapterTimingsCommand): GenerateChapterTimingsResult {
         val chapter = chapterRepository.findById(ChapterId.fromString(command.chapterId))
             .orElseThrow { RuntimeException("Chapter with ID ${command.chapterId} not found") }
