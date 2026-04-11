@@ -1,9 +1,13 @@
 package com.kille.presentation.controller
 
 import com.kille.presentation.dto.request.CreateChapterRequest
+import com.kille.presentation.dto.request.GenerateTimingsRequest
 import com.kille.presentation.dto.response.ApiResponse
 import com.kille.presentation.dto.response.ChapterResponse
 import com.kille.application.port.input.chapter.CreateChapterUseCase
+import com.kille.application.port.input.chapter.GenerateChapterTimingsCommand
+import com.kille.application.port.input.chapter.GenerateChapterTimingsResult
+import com.kille.application.port.input.chapter.GenerateChapterTimingsUseCase
 import com.kille.application.port.input.chapter.GetPlayableChaptersUseCase
 import com.kille.application.port.input.chapter.GetChapterUseCase
 import com.kille.application.port.input.chapter.UpdateChapterUseCase
@@ -17,12 +21,16 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.http.MediaType
+import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/chapters")
 @Tag(name = "Chapters", description = "API для управления главами")
 class ChapterController(
     private val createChapterUseCase: CreateChapterUseCase,
+    private val generateChapterTimingsUseCase: GenerateChapterTimingsUseCase,
     private val getPlayableChaptersUseCase: GetPlayableChaptersUseCase,
     private val getChapterUseCase: GetChapterUseCase,
     private val updateChapterUseCase: UpdateChapterUseCase,
@@ -48,6 +56,22 @@ class ChapterController(
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(ApiResponse.success(ChapterResponse.fromDomain(chapter), "Глава успешно создана"))
+    }
+
+    @PostMapping("/{id}/timings")
+    @Operation(summary = "Сгенерировать тайминги", description = "Генерирует тайминги слов из аудио и сохраняет timings.json в S3")
+    fun generateTimings(
+        @PathVariable id: String,
+        @RequestBody(required = false) request: GenerateTimingsRequest?
+    ): ResponseEntity<ApiResponse<GenerateChapterTimingsResult>> {
+        val result = generateChapterTimingsUseCase.execute(
+            GenerateChapterTimingsCommand(
+                chapterId = id,
+                audioUrl = request?.audioUrl
+            )
+        )
+
+        return ResponseEntity.ok(ApiResponse.success(result, "Тайминги успешно сгенерированы"))
     }
 
     @GetMapping("/book/{bookId}/playable")
@@ -93,3 +117,16 @@ data class UpdateChapterRequest(
     val audioUrl: String? = null,
     val timingUrl: String? = null
 )
+
+@PostMapping(
+    "/api/v1/books/{bookId}/chapters/{chapterId}/audio",
+    consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
+)
+fun uploadChapterAudio(
+    @PathVariable bookId: Long,
+    @PathVariable chapterId: Long,
+    @RequestPart("audio", required = false) audio: MultipartFile?
+): ResponseEntity<ChapterDto> {
+    val chapter = chapterService.uploadChapterAudio(bookId, chapterId, audio)
+    return ResponseEntity.ok(chapter)
+}

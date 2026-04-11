@@ -20,7 +20,7 @@ class AddChapterUseCase(
         val book = repository.findById(BookId(input.bookId))
             ?: throw RuntimeException("Book with ID ${input.bookId} not found")
 
-        val chapter = Chapter.createWithText(
+        var chapter = Chapter.createWithText(
             bookId = BookId(input.bookId),
             index = ChapterIndex(input.index),
             title = input.title,
@@ -28,7 +28,11 @@ class AddChapterUseCase(
         )
 
         if (input.durationMs != null) {
-            chapter.updateDuration(input.durationMs)
+            chapter = chapter.updateDuration(input.durationMs)
+        }
+
+        if (!input.audioUrl.isNullOrBlank()) {
+            chapter = chapter.addAudio(input.audioUrl, null)
         }
 
         book.addChapter(chapter)

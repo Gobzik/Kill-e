@@ -21,7 +21,7 @@ WORKDIR /app
 COPY build.gradle.kts settings.gradle.kts gradlew ./
 COPY gradle ./gradle
 COPY src ./src
-RUN chmod +x ./gradlew && ./gradlew clean build --no-daemon -x test
+RUN chmod +x ./gradlew && ./gradlew clean bootJar --no-daemon -x test -x processAot -x processTestAot
 
 # eclipse-temurin:24-jre as of 2026-02-28
 FROM eclipse-temurin:24-jre@sha256:8cb2387a28af84cf0db0948d9c67d4480192f4e567027a3963f145d218e8b4f2

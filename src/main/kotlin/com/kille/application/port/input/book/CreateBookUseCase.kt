@@ -22,15 +22,25 @@ class CreateBookUseCase(
     override fun execute(input: CreateBookRequest): BookResponse {
         val bookId = BookId.generate()
 
-        val chapters = input.chapters.map { chapterRequest ->
-            val chapter = Chapter.createWithText(
+        val chapters = input.chapters.mapNotNull { chapterRequest ->
+            // Skip chapters that have neither text nor audio.
+            if (chapterRequest.text.isNullOrBlank() && chapterRequest.audioUrl.isNullOrBlank()) {
+                return@mapNotNull null
+            }
+
+            // Audio-only chapters (no text, but audio present) are not created via createWithText.
+            if (chapterRequest.text.isNullOrBlank()) {
+                return@mapNotNull null
+            }
+
+            var chapter = Chapter.createWithText(
                 bookId = bookId,
                 index = ChapterIndex(chapterRequest.index),
                 title = chapterRequest.title,
-                text = chapterRequest.text ?: ""
+                text = chapterRequest.text!!
             )
             if (chapterRequest.durationMs != null) {
-                chapter.updateDuration(chapterRequest.durationMs)
+                chapter = chapter.updateDuration(chapterRequest.durationMs)
             }
             chapter
         }
