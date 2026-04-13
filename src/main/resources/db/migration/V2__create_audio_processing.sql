@@ -5,8 +5,9 @@ CREATE TABLE IF NOT EXISTS audio_processing (
     status VARCHAR(20) NOT NULL,
     duration_ms BIGINT,
     word_count INTEGER,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    error_message VARCHAR(1000),
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE INDEX idx_audio_processing_status ON audio_processing(status);

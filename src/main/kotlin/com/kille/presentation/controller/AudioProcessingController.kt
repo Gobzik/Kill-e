@@ -28,4 +28,10 @@ class AudioProcessingController(
         val result = processAudioUseCase.getStatus(id)
         return ResponseEntity.ok(result)
     }
+
+    @PostMapping("/{id}/process")
+    fun triggerProcessing(@PathVariable id: UUID): ResponseEntity<Void> {
+        processAudioUseCase.processTimings(id)
+        return ResponseEntity.accepted().build()
+    }
 }

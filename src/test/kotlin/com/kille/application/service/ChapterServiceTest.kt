@@ -1,7 +1,7 @@
-package com.yourapp.application.service
+package com.kille.application.service
 
-import com.yourapp.config.BookServiceProperties
-import com.yourapp.domain.model.*
+import com.kille.config.BookServiceProperties
+import com.kille.domain.model.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

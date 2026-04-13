@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.time.Instant
 import java.util.UUID
+
 data class ProcessAudioCommand(
     val audioFile: MultipartFile
 )
@@ -41,8 +42,8 @@ class ProcessAudioUseCase(
 
         return AudioProcessingResponse(
             id = id,
-            audioUrl = audioS3Key,
-            timingsUrl = null,
+            audioKey = audioS3Key,
+            timingsKey = null,
             status = ProcessingStatus.PENDING,
             wordCount = null,
             durationMs = null
@@ -53,17 +54,31 @@ class ProcessAudioUseCase(
         val audioProcessing = audioProcessingRepository.findById(id)
             ?: throw IllegalArgumentException("Audio processing with ID $id not found")
 
-        val words = speechToTextPort.recognizeWords(audioProcessing.audioS3Key)
-        val timingsJson = objectMapper.writeValueAsString(mapOf("words" to words))
-
-        // Исправлено: используем uploadContent вместо uploadTimingsUniversal
-        val timingsKey = "audio-processing/$id/timings.json"
-        val timingsS3Key = storagePort.uploadContent(timingsKey, timingsJson, "application/json")
-
-        val duration = words.maxOfOrNull { it.endMs }
         audioProcessingRepository.save(
-            audioProcessing.complete(timingsS3Key, words.size, duration)
+            audioProcessing.copy(
+                status = ProcessingStatus.PROCESSING,
+                updatedAt = Instant.now()
+            )
         )
+
+        try {
+            val audioUrl = storagePort.getPresignedUrl(audioProcessing.audioS3Key)
+            val words = speechToTextPort.recognizeWords(audioUrl)
+            val timingsJson = objectMapper.writeValueAsString(mapOf("words" to words))
+
+            val timingsKey = "audio-processing/$id/timings.json"
+            val timingsS3Key = storagePort.uploadContent(timingsKey, timingsJson, "application/json")
+
+            val duration = words.maxOfOrNull { it.endMs }
+            audioProcessingRepository.save(
+                audioProcessing.complete(timingsS3Key, words.size, duration)
+            )
+        } catch (ex: Exception) {
+            audioProcessingRepository.save(
+                audioProcessing.fail(ex.message)
+            )
+            throw ex
+        }
     }
 
     fun getStatus(id: UUID): AudioProcessingResponse {
@@ -72,8 +87,8 @@ class ProcessAudioUseCase(
 
         return AudioProcessingResponse(
             id = audioProcessing.id,
-            audioUrl = audioProcessing.audioS3Key,
-            timingsUrl = audioProcessing.timingsS3Key,
+            audioKey = audioProcessing.audioS3Key,
+            timingsKey = audioProcessing.timingsS3Key,
             status = audioProcessing.status,
             wordCount = audioProcessing.wordCount,
             durationMs = audioProcessing.durationMs

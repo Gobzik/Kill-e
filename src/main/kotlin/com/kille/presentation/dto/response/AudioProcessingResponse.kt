@@ -5,8 +5,8 @@ import java.util.UUID
 
 data class AudioProcessingResponse(
     val id: UUID,
-    val audioUrl: String,
-    val timingsUrl: String?,
+    val audioKey: String,
+    val timingsKey: String?,
     val status: ProcessingStatus,
     val wordCount: Int?,
     val durationMs: Long?

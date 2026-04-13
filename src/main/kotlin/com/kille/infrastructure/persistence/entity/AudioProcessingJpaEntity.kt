@@ -8,7 +8,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "audio_processing")
-data class AudioProcessingEntity(
+data class AudioProcessingJpaEntity(
     @Id
     val id: UUID,
 
@@ -27,6 +27,9 @@ data class AudioProcessingEntity(
 
     @Column(name = "word_count")
     val wordCount: Int? = null,
+
+    @Column(name = "error_message", length = 1000)
+    val errorMessage: String? = null,
 
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant,

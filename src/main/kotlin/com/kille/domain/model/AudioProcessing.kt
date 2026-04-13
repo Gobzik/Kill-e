@@ -1,5 +1,8 @@
 package com.kille.domain.model
+
+import java.time.Instant
 import java.util.UUID
+
 data class AudioProcessing(
     val id: UUID,
     val audioS3Key: String,
@@ -7,20 +10,22 @@ data class AudioProcessing(
     val status: ProcessingStatus,
     val durationMs: Long? = null,
     val wordCount: Int? = null,
-    val createdAt: java.time.Instant,
-    val updatedAt: java.time.Instant
+    val errorMessage: String? = null,
+    val createdAt: Instant,
+    val updatedAt: Instant
 ) {
     fun complete(timingsS3Key: String, wordCount: Int, durationMs: Long?) = copy(
         timingsS3Key = timingsS3Key,
         wordCount = wordCount,
         durationMs = durationMs,
         status = ProcessingStatus.COMPLETED,
-        updatedAt = java.time.Instant.now()
+        updatedAt = Instant.now()
     )
 
-    fun fail() = copy(
+    fun fail(errorMessage: String? = null) = copy(
         status = ProcessingStatus.FAILED,
-        updatedAt = java.time.Instant.now()
+        errorMessage = errorMessage,
+        updatedAt = Instant.now()
     )
 }
 
