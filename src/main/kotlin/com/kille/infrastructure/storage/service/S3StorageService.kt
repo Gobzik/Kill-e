@@ -184,7 +184,7 @@ class S3StorageService(
         return properties.chaptersPrefix.trim().trim('/')
     }
 
-    private fun uploadFile(key: String, file: MultipartFile): String {
+    override fun uploadFile(key: String, file: MultipartFile): String {
         try {
             val request = PutObjectRequest.builder()
                 .bucket(properties.bucket)
@@ -208,7 +208,7 @@ class S3StorageService(
         }
     }
 
-    private fun uploadContent(key: String, content: String, contentType: String): String {
+    override fun uploadContent(key: String, content: String, contentType: String): String {
         try {
             val request = PutObjectRequest.builder()
                 .bucket(properties.bucket)
@@ -227,6 +227,10 @@ class S3StorageService(
             logger.error("Failed to upload content: $key", e)
             throw RuntimeException("Failed to upload content to s3 storage", e)
         }
+    }
+
+    override fun getPresignedUrl(key: String): String {
+        return generatePresignedUrl(key)
     }
 
     private fun getFileContent(key: String): String? {

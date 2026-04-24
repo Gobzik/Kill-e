@@ -1,9 +1,7 @@
 package com.kille.application.service
 
 import com.kille.config.BookServiceProperties
-import com.kille.domain.model.BookId
-import com.kille.domain.model.Chapter
-import com.kille.domain.model.ChapterIndex
+import com.kille.domain.model.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
