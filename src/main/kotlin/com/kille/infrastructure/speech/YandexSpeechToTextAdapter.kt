@@ -11,6 +11,7 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.RestClientException
+import org.springframework.web.client.HttpClientErrorException
 
 @Component
 class YandexSpeechToTextAdapter(
@@ -24,6 +25,10 @@ class YandexSpeechToTextAdapter(
     override fun recognizeWords(audioUrl: String): List<WordTiming> {
         require(audioUrl.isNotBlank()) { "Audio URL is required" }
         require(properties.apiKey.isNotBlank()) { "SpeechKit API key is not configured" }
+
+        logger.debug("Recognizing speech from URL: {}", audioUrl)
+        logger.debug("Using SpeechKit endpoint: {}", properties.endpoint)
+        logger.debug("Language: {}, Model: {}, AudioContainer: {}", properties.language, properties.model, properties.audioContainer)
 
         val requestBody = mapOf(
             "uri" to audioUrl,
@@ -49,16 +54,22 @@ class YandexSpeechToTextAdapter(
                 .retrieve()
                 .body(String::class.java)
                 ?: throw IllegalStateException("Empty SpeechKit response")
+        } catch (ex: HttpClientErrorException) {
+            logger.error("SpeechKit API error (HTTP {}): {}", ex.statusCode, ex.responseBodyAsString, ex)
+            throw IllegalStateException("Failed to recognize speech via SpeechKit: ${ex.statusCode} - ${ex.responseBodyAsString}", ex)
         } catch (ex: RestClientException) {
             logger.error("SpeechKit request failed for URL: {}", audioUrl, ex)
-            throw IllegalStateException("Failed to recognize speech via SpeechKit", ex)
+            throw IllegalStateException("Failed to recognize speech via SpeechKit: ${ex.message}", ex)
         }
 
         val root = objectMapper.readTree(rawResponse)
         val words = mutableListOf<WordTiming>()
         collectWords(root, words)
 
+        logger.debug("SpeechKit returned {} words from response", words.size)
+
         if (words.isEmpty()) {
+            logger.warn("SpeechKit returned no word timings. Raw response: {}", rawResponse)
             throw IllegalStateException("SpeechKit returned no word timings")
         }
 

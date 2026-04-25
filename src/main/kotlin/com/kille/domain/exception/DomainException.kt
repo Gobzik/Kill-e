@@ -10,6 +10,3 @@ class EntityNotFoundException(
     id: Any
 ) : DomainException("$entityName not found with id: $id")
 
-class ValidationException(
-    message: String
-) : DomainException(message)

@@ -17,11 +17,16 @@ data class Chapter private constructor(
     private var _durationMs: Long? = null
 ) {
 
+    private fun isPlaceholderMediaValue(value: String?): Boolean {
+        val normalized = value?.trim()?.lowercase() ?: return false
+        return normalized == "string" || normalized == "null" || normalized == "undefined"
+    }
+
     val index: ChapterIndex get() = _index
     val title: String? get() = _title
     val text: String? get() = _text
-    val audioUrl: String? get() = _audioUrl
-    val timingUrl: String? get() = _timingUrl
+    val audioUrl: String? get() = _audioUrl?.takeUnless { isPlaceholderMediaValue(it) }
+    val timingUrl: String? get() = _timingUrl?.takeUnless { isPlaceholderMediaValue(it) }
     val updatedAt: LocalDateTime get() = _updatedAt
     val durationMs: Long? get() = _durationMs
 
@@ -91,8 +96,8 @@ data class Chapter private constructor(
     }
 
     fun hasText(): Boolean = !_text.isNullOrBlank()
-    fun hasAudio(): Boolean = !_audioUrl.isNullOrBlank()
-    fun hasTimings(): Boolean = !_timingUrl.isNullOrBlank()
+    fun hasAudio(): Boolean = !audioUrl.isNullOrBlank()
+    fun hasTimings(): Boolean = !timingUrl.isNullOrBlank()
     fun isPlayable(): Boolean = hasText() || hasAudio()
     fun durationAvailable(): Boolean = _durationMs != null || hasTimings()
 
@@ -120,27 +125,4 @@ data class Chapter private constructor(
         )
     }
 
-    fun updateDuration(durationMs: Long): Chapter {
-        if (durationMs <= 0) {
-            throw DomainException("Duration must be positive")
-        }
-
-        return copy(
-            _durationMs = durationMs,
-            _updatedAt = LocalDateTime.now()
-        )
-    }
-
-    private fun validate() {
-        require(_index.value >= 0) { "Chapter index must be >= 0" }
-
-        val hasContent = !_text.isNullOrBlank() || !_audioUrl.isNullOrBlank()
-        require(hasContent) { "Chapter must have either text or audio content" }
-
-        if (!_timingUrl.isNullOrBlank()) {
-            require(!_audioUrl.isNullOrBlank()) {
-                "Timings can only exist together with audio content"
-            }
-        }
-    }
 }

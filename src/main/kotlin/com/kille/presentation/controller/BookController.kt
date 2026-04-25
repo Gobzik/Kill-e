@@ -59,7 +59,7 @@ class BookController(
             .body(ApiResponse.success(result, "Книга успешно создана"))
     }
 
-    @PutMapping("/{id}")
+    @RequestMapping(value = ["/{id}"], method = [RequestMethod.PUT, RequestMethod.PATCH])
     @Operation(summary = "Обновить книгу", description = "Обновляет существующую книгу")
     fun update(
         @PathVariable id: UUID,
@@ -94,8 +94,7 @@ class BookController(
             title = request.title,
             content = request.content,
             index = request.index,
-            audioUrl = request.audioUrl,
-            durationMs = request.durationMs
+            audioUrl = request.audioUrl
         )
         val result = addChapterUseCase.execute(command)
         return ResponseEntity

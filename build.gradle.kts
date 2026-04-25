@@ -18,7 +18,9 @@ java {
 }
 
 repositories {
+    google()
     mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
@@ -33,7 +35,7 @@ dependencies {
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
     implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
     implementation("org.glassfish:jakarta.el:4.0.2")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")

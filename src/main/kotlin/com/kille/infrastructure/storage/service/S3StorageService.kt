@@ -2,6 +2,7 @@ package com.kille.infrastructure.storage.service
 
 import com.kille.application.port.output.StoragePort
 import com.kille.config.S3Properties
+import com.kille.infrastructure.storage.exception.StorageOperationException
 import com.kille.infrastructure.storage.dto.ChapterFiles
 import com.kille.infrastructure.storage.dto.FileUploadResult
 import org.slf4j.LoggerFactory
@@ -114,7 +115,7 @@ class S3StorageService(
             }
         } catch (e: S3Exception) {
             logger.error("Error deleting files for book $bookId, chapter $chapterId", e)
-            throw RuntimeException("Failed to delete chapter files", e)
+            throw StorageOperationException("Failed to delete chapter files: ${e.message}", e)
         }
     }
 
@@ -204,7 +205,7 @@ class S3StorageService(
             return key
         } catch (e: SdkException) {
             logger.error("Failed to upload file: $key", e)
-            throw RuntimeException("Failed to upload file to s3 storage", e)
+            throw StorageOperationException("Failed to upload file to S3 storage: ${e.message}", e)
         }
     }
 
@@ -225,7 +226,7 @@ class S3StorageService(
             return key
         } catch (e: SdkException) {
             logger.error("Failed to upload content: $key", e)
-            throw RuntimeException("Failed to upload content to s3 storage", e)
+            throw StorageOperationException("Failed to upload content to S3 storage: ${e.message}", e)
         }
     }
 

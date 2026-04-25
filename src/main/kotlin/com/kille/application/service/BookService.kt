@@ -47,7 +47,7 @@ class BookService(
 
     fun delete(id: BookId) {
         if (!books.containsKey(id)) {
-            throw IllegalArgumentException("Book with ID ${id} not found")
+            throw IllegalArgumentException("Book with ID $id not found")
         }
         books.remove(id)
     }

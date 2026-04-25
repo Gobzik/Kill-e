@@ -7,5 +7,4 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 @Configuration
 @EnableJpaRepositories(basePackages = ["com.kille.infrastructure.persistence.repository"])
 @EnableTransactionManagement
-class DatabaseConfig {
-}
+class DatabaseConfig

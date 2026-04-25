@@ -66,18 +66,20 @@ class ControllerLoggingAspect(
                 else -> LogLevel.ERROR
             }
 
-            loggingPort.log(
-                LogEntry(
-                    level = level,
-                    message = "Controller execution: $className.$methodName",
-                    correlationId = CorrelationIdContext.get(),
-                    layer = Layer.PRESENTATION,
-                    className = className,
-                    methodName = methodName,
-                    executionTimeMs = executionTime,
-                    additionalContext = contextMap
+            runCatching {
+                loggingPort.log(
+                    LogEntry(
+                        level = level,
+                        message = "Controller execution: $className.$methodName",
+                        correlationId = CorrelationIdContext.get(),
+                        layer = Layer.PRESENTATION,
+                        className = className,
+                        methodName = methodName,
+                        executionTimeMs = executionTime,
+                        additionalContext = contextMap
+                    )
                 )
-            )
+            }
 
             return result
         } catch (ex: Exception) {
@@ -85,23 +87,25 @@ class ControllerLoggingAspect(
 
             contextMap["statusCode"] = 500
 
-            loggingPort.log(
-                LogEntry(
-                    level = LogLevel.ERROR,
-                    message = "Controller execution failed: $className.$methodName",
-                    correlationId = CorrelationIdContext.get(),
-                    layer = Layer.PRESENTATION,
-                    className = className,
-                    methodName = methodName,
-                    executionTimeMs = executionTime,
-                    exception = ExceptionInfo(
-                        type = ex::class.java.simpleName,
-                        message = ex.message,
-                        stackTrace = ex.stackTraceToString()
-                    ),
-                    additionalContext = contextMap
+            runCatching {
+                loggingPort.log(
+                    LogEntry(
+                        level = LogLevel.ERROR,
+                        message = "Controller execution failed: $className.$methodName",
+                        correlationId = CorrelationIdContext.get(),
+                        layer = Layer.PRESENTATION,
+                        className = className,
+                        methodName = methodName,
+                        executionTimeMs = executionTime,
+                        exception = ExceptionInfo(
+                            type = ex::class.java.simpleName,
+                            message = ex.message,
+                            stackTrace = ex.stackTraceToString()
+                        ),
+                        additionalContext = contextMap
+                    )
                 )
-            )
+            }
 
             throw ex
         }

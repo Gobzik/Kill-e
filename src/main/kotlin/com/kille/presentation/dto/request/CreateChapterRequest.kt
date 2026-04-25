@@ -14,16 +14,15 @@ data class CreateChapterRequest(
     @field:Size(max = 500, message = "Title must be less than 500 characters")
     val title: String? = null,
 
-    val text: String? = null,
+    @field:NotBlank(message = "Text S3 key is required")
+    @field:Size(max = 1000, message = "Text S3 key cannot exceed 1000 characters")
+    val text: String,
 
     val audioUrl: String? = null,
 
-    val timingUrl: String? = null,
-
-    @field:Min(value = 1, message = "Duration must be positive")
-    val durationMs: Long? = null
+    val timingUrl: String? = null
 ) {
     fun validate(): Boolean {
-        return text != null || audioUrl != null
+        return text.isNotBlank()
     }
 }

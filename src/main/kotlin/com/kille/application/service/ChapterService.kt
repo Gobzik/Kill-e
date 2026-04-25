@@ -60,7 +60,7 @@ class ChapterService(
 
     fun delete(id: ChapterId) {
         if (!chapters.containsKey(id)) {
-            throw IllegalArgumentException("Chapter with ID ${id} not found")
+            throw IllegalArgumentException("Chapter with ID $id not found")
         }
         chapters.remove(id)
     }
@@ -85,25 +85,4 @@ class ChapterService(
     }
 }
 
-@Transactional
-fun uploadChapterAudio(
-    bookId: Long,
-    chapterId: Long,
-    audio: MultipartFile
-): ChapterDto {
-    val chapter = chapterRepository.findByIdAndBookId(chapterId, bookId)
-        ?: throw NotFoundException("Chapter not found")
-
-    val result = storageService.uploadChapterFiles(
-        bookId = bookId,
-        chapterId = chapterId,
-        audio = audio,
-        text = null,
-        timings = null
-    )
-
-    chapter.audioUrl = result.audioKey
-    chapterRepository.save(chapter)
-
-    return chapterMapper.toDto(chapter)
-}
+// ...existing code...

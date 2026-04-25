@@ -18,30 +18,32 @@ class CreateBookUseCase(
     private val mapper: BookMapper
 ) : UseCase<CreateBookRequest, BookResponse> {
 
+    private fun normalizeMediaUrl(value: String?): String? {
+        val normalized = value?.trim() ?: return null
+        if (normalized.isEmpty()) return null
+        if (normalized.equals("string", ignoreCase = true)) return null
+        if (normalized.equals("null", ignoreCase = true)) return null
+        if (normalized.equals("undefined", ignoreCase = true)) return null
+        return normalized
+    }
+
     @Transactional
     override fun execute(input: CreateBookRequest): BookResponse {
         val bookId = BookId.generate()
 
-        val chapters = input.chapters.mapNotNull { chapterRequest ->
-            // Skip chapters that have neither text nor audio.
-            if (chapterRequest.text.isNullOrBlank() && chapterRequest.audioUrl.isNullOrBlank()) {
-                return@mapNotNull null
-            }
-
-            // Audio-only chapters (no text, but audio present) are not created via createWithText.
-            if (chapterRequest.text.isNullOrBlank()) {
-                return@mapNotNull null
-            }
-
+        val chapters = input.chapters.map { chapterRequest ->
             var chapter = Chapter.createWithText(
                 bookId = bookId,
                 index = ChapterIndex(chapterRequest.index),
                 title = chapterRequest.title,
-                text = chapterRequest.text!!
+                text = chapterRequest.text
             )
-            if (chapterRequest.durationMs != null) {
-                chapter = chapter.updateDuration(chapterRequest.durationMs)
+
+            val normalizedAudioUrl = normalizeMediaUrl(chapterRequest.audioUrl)
+            if (normalizedAudioUrl != null) {
+                chapter = chapter.addAudio(normalizedAudioUrl, null)
             }
+
             chapter
         }
 

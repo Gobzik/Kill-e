@@ -1,0 +1,11 @@
+gradle.projectsLoaded { gs ->
+    gs.rootProject {
+        extensions.extraProperties.set("resolveAllDependencies", true)
+
+        gradle.taskGraph.whenReady { taskGraph ->
+            logger.info("gradle: using plugin repositories: ${pluginRepositories.collect { it.name }}")
+            logger.info("gradle: using artifact repositories: ${repositories.collect { it.name }}")
+        }
+    }
+}
+

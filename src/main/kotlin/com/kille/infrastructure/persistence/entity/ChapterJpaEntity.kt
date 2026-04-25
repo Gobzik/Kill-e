@@ -8,35 +8,35 @@ import java.util.UUID
 @Table(name = "chapters")
 class ChapterJpaEntity(
     @Id
-    val id: UUID,
+    var id: UUID,
 
     @Column(name = "book_id", nullable = false)
-    val bookId: UUID,
+    var bookId: UUID,
 
     @Column(name = "chapter_index", nullable = false)
-    val index: Int,
+    var index: Int,
 
     @Column(name = "title", length = 500)
-    val title: String?,
+    var title: String?,
 
     @Lob
     @Column(name = "text", columnDefinition = "TEXT")
-    val text: String?,
+    var text: String?,
 
     @Column(name = "audio_url", length = 2000)
-    val audioUrl: String?,
+    var audioUrl: String?,
 
     @Column(name = "timing_url", length = 2000)
-    val timingUrl: String?,
+    var timingUrl: String?,
 
     @Column(name = "duration_ms")
-    val durationMs: Long?,
+    var durationMs: Long?,
 
     @Column(name = "created_at", nullable = false)
-    val createdAt: LocalDateTime,
+    var createdAt: LocalDateTime,
 
     @Column(name = "updated_at", nullable = false)
-    val updatedAt: LocalDateTime
+    var updatedAt: LocalDateTime
 ) {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", referencedColumnName = "id", insertable = false, updatable = false)

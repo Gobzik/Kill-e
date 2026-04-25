@@ -1,4 +1,3 @@
-// src/main/kotlin/com/kille/config/S3Properties.kt
 package com.kille.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties

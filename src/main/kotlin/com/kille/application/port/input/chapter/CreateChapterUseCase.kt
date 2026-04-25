@@ -13,11 +13,20 @@ class CreateChapterUseCase(
     private val chapterRepository: ChapterRepository
 ) {
 
+    private fun normalizeMediaUrl(value: String?): String? {
+        val normalized = value?.trim() ?: return null
+        if (normalized.isEmpty()) return null
+        if (normalized.equals("string", ignoreCase = true)) return null
+        if (normalized.equals("null", ignoreCase = true)) return null
+        if (normalized.equals("undefined", ignoreCase = true)) return null
+        return normalized
+    }
+
     fun execute(
         bookId: BookId,
         index: ChapterIndex,
         title: String?,
-        text: String?,
+        text: String,
         audioUrl: String?,
         timingUrl: String?
     ): Chapter {
@@ -25,23 +34,21 @@ class CreateChapterUseCase(
             throw IllegalArgumentException("Chapter with index $index already exists in book $bookId")
         }
 
-        val chapter = if (text != null) {
-            Chapter.createWithText(
-                bookId = bookId,
-                index = index,
-                title = title,
-                text = text
-            )
-        } else if (audioUrl != null) {
-            val emptyChapter = Chapter.createWithText(
-                bookId = bookId,
-                index = index,
-                title = title,
-                text = "Temporary text"
-            )
-            emptyChapter.addAudio(audioUrl, timingUrl)
-        } else {
-            throw IllegalArgumentException("Chapter must have either text or audio")
+        val chapterText = text.takeIf { it.isNotBlank() }
+            ?: throw IllegalArgumentException("Chapter text S3 key is required")
+
+        var chapter = Chapter.createWithText(
+            bookId = bookId,
+            index = index,
+            title = title,
+            text = chapterText
+        )
+
+        val normalizedAudioUrl = normalizeMediaUrl(audioUrl)
+        val normalizedTimingUrl = normalizeMediaUrl(timingUrl)
+
+        if (normalizedAudioUrl != null) {
+            chapter = chapter.addAudio(normalizedAudioUrl, normalizedTimingUrl)
         }
 
         return chapterRepository.save(chapter)

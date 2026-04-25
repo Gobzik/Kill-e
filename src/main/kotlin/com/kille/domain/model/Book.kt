@@ -44,10 +44,7 @@ class Book private constructor(
         _chapters.add(chapter)
         ensureSorting()
     }
-    fun getChapter(index: Int): Chapter {
-        validateChapterIndex(index)
-        return _chapters[index]
-    }
+
     fun hasAudio(): Boolean = _audio
     fun hasText(): Boolean = _text
     fun chapterCount(): Int = _chapters.size
@@ -165,7 +162,7 @@ class Book private constructor(
     }
 
     private fun validateChapterIndex(index: Int) {
-        require(index in 0 until _chapters.size) {
+        require(index in _chapters.indices) {
             "Индекс главы $index вне допустимого диапазона [0, ${_chapters.size})"
         }
     }

@@ -6,11 +6,11 @@ import java.util.UUID
 
 @Entity
 @Table(name = "books")
-data class BookEntityJpa(
+class BookEntityJpa(
 
     @Id
     @Column(columnDefinition = "UUID")
-    val id: UUID,
+    var id: UUID,
 
     @Column(nullable = false, length = 200)
     var title: String,
@@ -31,7 +31,7 @@ data class BookEntityJpa(
     var hasText: Boolean,
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    var createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "updated_at", nullable = false)
     var updatedAt: LocalDateTime = LocalDateTime.now(),
