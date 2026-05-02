@@ -8,6 +8,6 @@ data class YandexSpeechProperties(
     val apiKey: String = "",
     val language: String = "ru-RU",
     val model: String = "general",
-    val audioContainer: String = "MP3"
+    val audioContainer: String = "MP3",
+    val folderId: String = ""
 )
-

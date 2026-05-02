@@ -30,7 +30,7 @@ class YandexSpeechToTextAdapter(
         logger.debug("Using SpeechKit endpoint: {}", properties.endpoint)
         logger.debug("Language: {}, Model: {}, AudioContainer: {}", properties.language, properties.model, properties.audioContainer)
 
-        val requestBody = mapOf(
+        val requestBody = mutableMapOf<String, Any>(
             "uri" to audioUrl,
             "recognitionModel" to mapOf(
                 "model" to properties.model,
@@ -44,13 +44,22 @@ class YandexSpeechToTextAdapter(
             ),
             "rawResults" to true
         )
+        if (properties.folderId.isNotBlank()) {
+            requestBody["folderId"] = properties.folderId
+        }
 
         val rawResponse = try {
-            restClient.post()
+            val request = restClient.post()
                 .uri(properties.endpoint)
                 .header(HttpHeaders.AUTHORIZATION, "Api-Key ${properties.apiKey}")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(requestBody)
+
+            if (properties.folderId.isNotBlank()) {
+                request.header("x-folder-id", properties.folderId)
+            }
+
+            request
                 .retrieve()
                 .body(String::class.java)
                 ?: throw IllegalStateException("Empty SpeechKit response")
@@ -143,4 +152,3 @@ class YandexSpeechToTextAdapter(
         }
     }
 }
-

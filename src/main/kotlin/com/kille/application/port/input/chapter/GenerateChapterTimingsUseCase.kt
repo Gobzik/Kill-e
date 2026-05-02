@@ -56,9 +56,16 @@ class GenerateChapterTimingsUseCase(
         val audioKey = chapter.audioUrl ?: throw IllegalArgumentException("Audio URL is required to generate timings")
         val audioUrl = storagePort.getPresignedUrl(audioKey)
 
-        val words = speechToTextPort.recognizeWords(audioUrl)
-        val timingsJson = objectMapper.writeValueAsString(TimingsPayload(words))
-        val duration = words.maxOfOrNull { it.endMs }
+        // If timings already exist in storage for this chapter, use them instead of calling external SpeechKit
+        val existingTimings = storagePort.getTimings(chapter.bookId.value, chapter.id.value)
+        val (words, timingsJson, duration) = if (!existingTimings.isNullOrBlank()) {
+            val existingWords = decodeWords(existingTimings)
+            Triple(existingWords, existingTimings, existingWords.maxOfOrNull { it.endMs })
+        } else {
+            val recognized = speechToTextPort.recognizeWords(audioUrl)
+            val json = objectMapper.writeValueAsString(TimingsPayload(recognized))
+            Triple(recognized, json, recognized.maxOfOrNull { it.endMs })
+        }
 
         val review = reviewRepository.save(
             ChapterTimingsReview.create(
