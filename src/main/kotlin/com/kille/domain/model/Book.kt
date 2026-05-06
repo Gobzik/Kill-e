@@ -18,6 +18,7 @@ class Book private constructor(
     val _text: Boolean,
 
 ) {
+
     val title: String get() = _title
     val author: String get() = _author
     val language: String get() = _language
@@ -167,4 +168,3 @@ class Book private constructor(
         }
     }
 }
-

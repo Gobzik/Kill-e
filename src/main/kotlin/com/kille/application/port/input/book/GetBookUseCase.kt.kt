@@ -25,8 +25,6 @@ class GetBookUseCase(
             author = book.author,
             language = book.language,
             coverUrl = book.coverUrl,
-            hasAudio = book.hasAudio(),
-            hasText = book.hasText(),
             chapterCount = book.chapterCount(),
             chapters = book.chapters().map { chapter ->
                 ChapterResponse.fromDomain(chapter)

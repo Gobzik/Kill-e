@@ -20,4 +20,5 @@ interface StoragePort {
     fun uploadFile(key: String, file: MultipartFile): String
     fun uploadContent(key: String, content: String, contentType: String): String
     fun getPresignedUrl(key: String): String
+    fun getFileContent(key: String): String?
 }

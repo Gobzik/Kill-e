@@ -26,7 +26,6 @@ class CreateChapterUseCase(
         bookId: BookId,
         index: ChapterIndex,
         title: String?,
-        text: String,
         audioUrl: String?,
         timingUrl: String?
     ): Chapter {
@@ -34,14 +33,10 @@ class CreateChapterUseCase(
             throw IllegalArgumentException("Chapter with index $index already exists in book $bookId")
         }
 
-        val chapterText = text.takeIf { it.isNotBlank() }
-            ?: throw IllegalArgumentException("Chapter text S3 key is required")
-
-        var chapter = Chapter.createWithText(
+        var chapter = Chapter.createWithoutText(
             bookId = bookId,
             index = index,
-            title = title,
-            text = chapterText
+            title = title
         )
 
         val normalizedAudioUrl = normalizeMediaUrl(audioUrl)

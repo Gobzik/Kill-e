@@ -38,9 +38,6 @@ data class ChapterData(
     @field:Size(max = 500, message = "Title must be less than 500 characters")
     val title: String? = null,
 
-    @field:NotBlank(message = "Chapter text S3 key is required")
-    @field:Size(max = 1000, message = "Chapter text key cannot exceed 1000 characters")
-    val text: String,
 
     val audioUrl: String? = null
 )

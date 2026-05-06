@@ -21,15 +21,19 @@ class UpdateBookUseCase(
         val book = repository.findById(BookId(input.bookId))
             ?: throw RuntimeException("Book with ID ${input.bookId} not found")
 
+        val chapters = book.chapters()
+        val hasAudio = chapters.any { it.hasAudio() }
+        val hasText = chapters.any { it.hasText() }
+
         val updatedBook = Book.restore(
             id = book.id,
             title = input.title ?: book.title,
             author = input.author ?: book.author,
             language = input.language ?: book.language,
             coverUrl = input.coverUrl ?: book.coverUrl,
-            chapters = book.chapters(),
-            audio = book.audio,
-            text = book.text
+            chapters = chapters,
+            audio = hasAudio,
+            text = hasText
         )
         val savedBook = repository.save(updatedBook)
         return mapper.toResponse(savedBook)

@@ -31,7 +31,6 @@ class UpdateChapterUseCase(
         val normalizedTimingUrl = normalizeMediaUrl(input.timingUrl)
 
         val updatedChapter = when {
-            input.text != null -> chapter.updateText(input.text)
             normalizedAudioUrl != null -> chapter.addAudio(normalizedAudioUrl, normalizedTimingUrl)
             else -> chapter
         }
@@ -43,7 +42,6 @@ class UpdateChapterUseCase(
 
 data class UpdateChapterCommand(
     val chapterId: String,
-    val text: String? = null,
     val audioUrl: String? = null,
     val timingUrl: String? = null
 )

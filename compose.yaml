@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "127.0.0.1:5432:5432"
+      - "15432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -40,6 +40,20 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - kille-network
+    restart: unless-stopped
+
+  admin-ui:
+    image: nginx:alpine
+    container_name: kille-admin-ui
+    ports:
+      - "80:80"
+    volumes:
+      - ./src/main/resources/static:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
     networks:
       - kille-network
     restart: unless-stopped

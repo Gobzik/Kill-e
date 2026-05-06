@@ -1,16 +1,12 @@
 package com.kille.presentation.controller
 
 import com.kille.presentation.dto.request.CreateBookRequest
-import com.kille.presentation.dto.request.AddChapterRequest
 import com.kille.presentation.dto.request.UpdateBookRequest
 import com.kille.presentation.dto.response.ApiResponse
 import com.kille.presentation.dto.response.BookResponse
-import com.kille.presentation.dto.response.ChapterResponse
-import com.kille.application.port.input.book.AddChapterCommand
 import com.kille.application.port.input.book.CreateBookUseCase
 import com.kille.application.port.input.book.GetAllBooksUseCase
 import com.kille.application.port.input.book.GetBookUseCase
-import com.kille.application.port.input.book.AddChapterUseCase
 import com.kille.application.port.input.book.UpdateBookUseCase
 import com.kille.application.port.input.book.UpdateBookCommand
 import com.kille.application.port.input.book.DeleteBookUseCase
@@ -29,7 +25,6 @@ class BookController(
     private val createBookUseCase: CreateBookUseCase,
     private val getAllBooksUseCase: GetAllBooksUseCase,
     private val getBookUseCase: GetBookUseCase,
-    private val addChapterUseCase: AddChapterUseCase,
     private val updateBookUseCase: UpdateBookUseCase,
     private val deleteBookUseCase: DeleteBookUseCase
 ) {
@@ -48,11 +43,24 @@ class BookController(
         return ResponseEntity.ok(ApiResponse.success(result))
     }
 
-    @PostMapping
-    @Operation(summary = "Создать книгу", description = "Создаёт новую книгу с главами")
+    @PostMapping(produces = ["application/json"])
+    @Operation(summary = "Создать книгу", description = "Создаёт новую книгу (все поля передаются как параметры)")
     fun create(
-        @Valid @RequestBody request: CreateBookRequest
+        @RequestParam title: String,
+        @RequestParam author: String,
+        @RequestParam language: String
     ): ResponseEntity<ApiResponse<BookResponse>> {
+        // Build existing DTO and delegate to use case to avoid changing business logic
+        val request = CreateBookRequest(
+            title = title.trim(),
+            author = author.trim(),
+            language = language.trim(),
+            coverUrl = null,
+            audio = false,
+            text = true,
+            chapters = emptyList()
+        )
+
         val result = createBookUseCase.execute(request)
         return ResponseEntity
             .status(HttpStatus.CREATED)
@@ -83,22 +91,5 @@ class BookController(
         return ResponseEntity.ok(ApiResponse.success(Unit, "Книга успешно удалена"))
     }
 
-    @PostMapping("/{bookId}/chapters")
-    @Operation(summary = "Добавить главу", description = "Добавляет новую главу в существующую книгу")
-    fun addChapter(
-        @PathVariable bookId: UUID,
-        @Valid @RequestBody request: AddChapterRequest
-    ): ResponseEntity<ApiResponse<ChapterResponse>> {
-        val command = AddChapterCommand(
-            bookId = bookId,
-            title = request.title,
-            content = request.content,
-            index = request.index,
-            audioUrl = request.audioUrl
-        )
-        val result = addChapterUseCase.execute(command)
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(ApiResponse.success(result, "Глава успешно добавлена"))
-    }
+    // NOTE: endpoint POST /api/v1/books/{bookId}/chapters removed as requested
 }

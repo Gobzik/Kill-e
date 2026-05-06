@@ -32,11 +32,10 @@ class CreateBookUseCase(
         val bookId = BookId.generate()
 
         val chapters = input.chapters.map { chapterRequest ->
-            var chapter = Chapter.createWithText(
+            var chapter = Chapter.createWithoutText(
                 bookId = bookId,
                 index = ChapterIndex(chapterRequest.index),
-                title = chapterRequest.title,
-                text = chapterRequest.text
+                title = chapterRequest.title
             )
 
             val normalizedAudioUrl = normalizeMediaUrl(chapterRequest.audioUrl)
@@ -47,6 +46,9 @@ class CreateBookUseCase(
             chapter
         }
 
+        val hasAudio = chapters.any { it.hasAudio() }
+        val hasText = chapters.any { it.hasText() }
+
         val book = Book.createWithId(
             id = bookId,
             title = input.title,
@@ -54,8 +56,8 @@ class CreateBookUseCase(
             language = input.language,
             coverUrl = input.coverUrl,
             chapters = chapters,
-            audio = input.audio,
-            text = input.text
+            audio = hasAudio,
+            text = hasText
         )
 
         val savedBook = repository.save(book)

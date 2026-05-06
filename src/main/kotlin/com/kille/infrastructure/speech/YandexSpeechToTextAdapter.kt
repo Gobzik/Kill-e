@@ -6,12 +6,11 @@ import com.kille.application.port.output.SpeechToTextPort
 import com.kille.application.port.output.WordTiming
 import com.kille.config.YandexSpeechProperties
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
-import org.springframework.web.client.RestClient
-import org.springframework.web.client.RestClientException
-import org.springframework.web.client.HttpClientErrorException
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 
 @Component
 class YandexSpeechToTextAdapter(
@@ -20,7 +19,7 @@ class YandexSpeechToTextAdapter(
 ) : SpeechToTextPort {
 
     private val logger = LoggerFactory.getLogger(javaClass)
-    private val restClient: RestClient = RestClient.builder().build()
+    private val httpClient: HttpClient = HttpClient.newBuilder().build()
 
     override fun recognizeWords(audioUrl: String): List<WordTiming> {
         require(audioUrl.isNotBlank()) { "Audio URL is required" }
@@ -30,8 +29,24 @@ class YandexSpeechToTextAdapter(
         logger.debug("Using SpeechKit endpoint: {}", properties.endpoint)
         logger.debug("Language: {}, Model: {}, AudioContainer: {}", properties.language, properties.model, properties.audioContainer)
 
+        val audioBytes = try {
+            val audioRequest = HttpRequest.newBuilder()
+                .uri(URI.create(audioUrl))
+                .GET()
+                .build()
+            val audioResponse = httpClient.send(audioRequest, HttpResponse.BodyHandlers.ofByteArray())
+            if (audioResponse.statusCode() !in 200..299) {
+                throw IllegalStateException("Failed to download audio from S3 presigned URL: HTTP ${audioResponse.statusCode()}")
+            }
+            audioResponse.body()
+        } catch (ex: Exception) {
+            logger.error("Failed to download audio from {}", audioUrl, ex)
+            throw IllegalStateException("Failed to download audio file: ${ex.message}", ex)
+        }
+        val encodedAudio = java.util.Base64.getEncoder().encodeToString(audioBytes)
+
         val requestBody = mutableMapOf<String, Any>(
-            "uri" to audioUrl,
+            "content" to encodedAudio,
             "recognitionModel" to mapOf(
                 "model" to properties.model,
                 "languageRestriction" to mapOf(
@@ -44,36 +59,117 @@ class YandexSpeechToTextAdapter(
             ),
             "rawResults" to true
         )
-        if (properties.folderId.isNotBlank()) {
+        // Only set folderId if it's not a generic placeholder
+        if (properties.folderId.isNotBlank() && properties.folderId != "folder_id") {
             requestBody["folderId"] = properties.folderId
         }
 
-        val rawResponse = try {
-            val request = restClient.post()
-                .uri(properties.endpoint)
-                .header(HttpHeaders.AUTHORIZATION, "Api-Key ${properties.apiKey}")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(requestBody)
+        val requestJson = objectMapper.writeValueAsString(requestBody)
 
-            if (properties.folderId.isNotBlank()) {
-                request.header("x-folder-id", properties.folderId)
+        val startRawResponse = try {
+            val requestBuilder = HttpRequest.newBuilder()
+                .uri(URI.create(properties.endpoint))
+                .header("Authorization", "Api-Key ${properties.apiKey}")
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestJson))
+
+            if (properties.folderId.isNotBlank() && properties.folderId != "folder_id") {
+                requestBuilder.header("x-folder-id", properties.folderId)
             }
 
-            request
-                .retrieve()
-                .body(String::class.java)
-                ?: throw IllegalStateException("Empty SpeechKit response")
-        } catch (ex: HttpClientErrorException) {
-            logger.error("SpeechKit API error (HTTP {}): {}", ex.statusCode, ex.responseBodyAsString, ex)
-            throw IllegalStateException("Failed to recognize speech via SpeechKit: ${ex.statusCode} - ${ex.responseBodyAsString}", ex)
-        } catch (ex: RestClientException) {
+            val response = httpClient.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString())
+
+            if (response.statusCode() !in 200..299) {
+                logger.error("SpeechKit API error (HTTP {}): {}", response.statusCode(), response.body())
+                throw IllegalStateException("Failed to start speech recognition: ${response.statusCode()} - ${response.body()}")
+            }
+
+            response.body() ?: throw IllegalStateException("Empty SpeechKit response")
+        } catch (ex: Exception) {
             logger.error("SpeechKit request failed for URL: {}", audioUrl, ex)
-            throw IllegalStateException("Failed to recognize speech via SpeechKit: ${ex.message}", ex)
+            throw IllegalStateException("Failed to start speech recognition via SpeechKit: ${ex.message}", ex)
         }
 
-        val root = objectMapper.readTree(rawResponse)
+        val opNode = objectMapper.readTree(startRawResponse)
+        val operationId = opNode.get("id")?.asText()
+            ?: throw IllegalStateException("SpeechKit returned no operation ID: $startRawResponse")
+
+        logger.debug("Started asynchronous recognition, Operation ID: {}", operationId)
+
+        // Poll operation status
+        var done = false
+        var attempts = 0
+        while (!done && attempts < 60) {
+            Thread.sleep(5000)
+            attempts++
+            try {
+                val request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://operation.api.cloud.yandex.net/operations/$operationId"))
+                    .header("Authorization", "Api-Key ${properties.apiKey}")
+                    .GET()
+                    .build()
+
+                val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
+                
+                if (response.statusCode() !in 200..299) {
+                    throw IllegalStateException("Failed to poll operation status: HTTP ${response.statusCode()}")
+                }
+
+                val statusRaw = response.body() ?: throw IllegalStateException("Empty operation status")
+
+                val statusNode = objectMapper.readTree(statusRaw)
+                done = statusNode.get("done")?.asBoolean() ?: false
+
+                val errorNode = statusNode.get("error")
+                if (errorNode != null && !errorNode.isNull) {
+                    throw IllegalStateException("SpeechKit async operation failed: $errorNode")
+                }
+            } catch (ex: Exception) {
+                logger.error("Failed to poll operation status", ex)
+                throw IllegalStateException("Failed to poll operation status: ${ex.message}", ex)
+            }
+        }
+
+        if (!done) {
+            throw IllegalStateException("SpeechKit operation timed out after 5 minutes")
+        }
+
+        logger.debug("Operation {} completed successfully", operationId)
+
+        // Get recognition results
+        val rawResponse = try {
+            val request = HttpRequest.newBuilder()
+                .uri(URI.create("https://stt.api.cloud.yandex.net/stt/v3/getRecognition?operationId=$operationId"))
+                .header("Authorization", "Api-Key ${properties.apiKey}")
+                .GET()
+                .build()
+
+            val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
+
+            if (response.statusCode() !in 200..299) {
+                throw IllegalStateException("Failed to get recognition results: HTTP ${response.statusCode()}")
+            }
+            
+            response.body() ?: throw IllegalStateException("Empty getRecognition response")
+        } catch (ex: Exception) {
+            logger.error("Failed to get recognition results", ex)
+            throw IllegalStateException("Failed to get recognition results: ${ex.message}", ex)
+        }
+
         val words = mutableListOf<WordTiming>()
-        collectWords(root, words)
+
+        // Yandex GET /getRecognition can return a sequence of JSON objects (Newline-delimited JSON).
+        // We should parse each distinct JSON object.
+        rawResponse.lines()
+            .filter { it.isNotBlank() }
+            .forEach { line ->
+                try {
+                    val root = objectMapper.readTree(line)
+                    collectWords(root, words)
+                } catch (e: Exception) {
+                    logger.warn("Failed to parse line from recognition results: {}", line, e)
+                }
+            }
 
         logger.debug("SpeechKit returned {} words from response", words.size)
 

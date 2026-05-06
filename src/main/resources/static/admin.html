@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - Kill-e</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+        section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        h2 { margin-top: 0; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input, select, button { margin-top: 5px; padding: 8px; width: 100%; box-sizing: border-box; }
+        button { background-color: #007bff; color: white; border: none; cursor: pointer; margin-top: 15px;}
+        button:hover { background-color: #0056b3; }
+        .hidden { display: none; }
+        .conflict-box { background-color: #fff3cd; border: 1px solid #ffeeba; padding: 10px; margin-top: 10px;}
+        .context-text { font-style: italic; color: #555; }
+        audio { margin-top: 10px; width: 100%; }
+        .status { margin-top: 10px; color: green; font-family: monospace; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+
+<h1>Admin Dashboard</h1>
+
+<section id="book-section">
+    <h2>1. Создать книгу</h2>
+    <label>Название</label>
+    <input type="text" id="book-title" placeholder="Название книги">
+    <label>Автор (опционально)</label>
+    <input type="text" id="book-author" placeholder="Автор">
+    <button onclick="createBook()">Создать книгу</button>
+    <div id="book-status" class="status"></div>
+</section>
+
+<section id="chapter-create-section">
+    <h2>2. Создать главу</h2>
+    <label>ID Книги</label>
+    <input type="text" id="chapter-book-id" placeholder="UUID книги">
+    <label>Индекс</label>
+    <input type="number" id="chapter-index" value="1">
+    <label>Название</label>
+    <input type="text" id="chapter-title" placeholder="Название главы">
+    <button onclick="createChapter()">Создать главу</button>
+    <div id="chapter-create-status" class="status"></div>
+</section>
+
+<section id="chapter-work-section">
+    <h2>3. Работа с главой (Загрузка файлов и Тайминги)</h2>
+    <label>ID Главы</label>
+    <input type="text" id="work-chapter-id" placeholder="UUID главы">
+    <button onclick="loadChapterDetails()">Загрузить данные главы</button>
+    <div id="chapter-details-status" class="status"></div>
+
+    <div id="chapter-workspace" class="hidden">
+        <hr>
+        <p><strong>Book ID:</strong> <span id="ws-book-id"></span></p>
+
+        <label>1. Загрузить Текст (.txt)</label>
+        <input type="file" id="upload-text-file">
+        <button onclick="uploadFile('text')">Отправить текст</button>
+
+        <label>2. Загрузить Аудио (.mp3, .wav)</label>
+        <input type="file" id="upload-audio-file">
+        <button onclick="uploadFile('audio')">Отправить аудио</button>
+        <div id="upload-status" class="status"></div>
+
+        <hr>
+        <button onclick="generateTimings()">3. Создать тайминги (Анализ)</button>
+        <button onclick="checkTimingsStatus()">4. Проверить статус / Запросить конфликты</button>
+        <div id="timings-status" class="status"></div>
+
+        <div id="conflict-panel" class="conflict-box hidden">
+            <h3>Конфликт распознавания!</h3>
+            <p>Осталось конфликтов: <span id="conflicts-left"></span></p>
+            <p><strong>Текст из книги:</strong> <span id="conflict-text"></span></p>
+            <p><strong>Распознано SpeechKit:</strong> <span id="conflict-recognized"></span></p>
+
+            <p>Контекст:</p>
+            <p class="context-text">... <span id="context-before"></span> <b><span id="conflict-word-focus"></span></b> <span id="context-after"></span> ...</p>
+
+            <audio id="conflict-audio" controls></audio>
+
+            <label>Исправленное слово:</label>
+            <input type="text" id="conflict-correction">
+            <button onclick="resolveConflict()">Разрешить конфликт</button>
+        </div>
+
+        <button onclick="finalizeTimings()" style="background-color: #28a745;">5. Финализировать (Finalize)</button>
+        <div id="finalize-status" class="status"></div>
+    </div>
+</section>
+
+<script>
+    const API = '/api/v1';
+    let currentBookId = '';
+    let currentConflictIndex = null;
+
+    async function req(method, path, body = null) {
+        const headers = { 'Accept': 'application/json' };
+        if (body && !(body instanceof FormData)) {
+            headers['Content-Type'] = 'application/json';
+            body = JSON.stringify(body);
+        }
+        const res = await fetch(`${API}${path}`, { method, headers, body });
+        const data = await res.json().catch(() => null);
+        if (!res.ok) throw new Error((data && data.error) || 'Ошибка запроса');
+        return data;
+    }
+
+    async function createBook() {
+        try {
+            const title = document.getElementById('book-title').value;
+            const author = document.getElementById('book-author').value;
+            const res = await req('POST', '/books', { title, author });
+            document.getElementById('book-status').innerText = 'Книга создана! ID: ' + res.data.id;
+            document.getElementById('chapter-book-id').value = res.data.id;
+        } catch (e) {
+            document.getElementById('book-status').innerHTML = `<span class="error">${e.message}</span>`;
+        }
+    }
+
+    async function createChapter() {
+        try {
+            const bookId = document.getElementById('chapter-book-id').value;
+            const index = parseInt(document.getElementById('chapter-index').value);
+            const title = document.getElementById('chapter-title').value;
+            const res = await req('POST', '/chapters', { bookId, index, title, text: "dummy" }); // dummy txt for payload
+            document.getElementById('chapter-create-status').innerText = 'Глава создана! ID: ' + res.data.id;
+            document.getElementById('work-chapter-id').value = res.data.id;
+        } catch (e) {
+            document.getElementById('chapter-create-status').innerHTML = `<span class="error">${e.message}</span>`;
+        }
+    }
+
+    async function loadChapterDetails() {
+        try {
+            const chapterId = document.getElementById('work-chapter-id').value;
+            // Trying to infer bookId from chapters api if not available it might be tricky. Let's just fetch all books or just rely on manual input if needed.
+            // Wait, we can GET book via some general endpoint or we assume bookId is known.
+            // In the backend, ChapterController might have GetChapterUseCase. Let's send a fake request or try to find bookId.
+            // Actually, we can get Playable or search in books. Let's fetch all books and find our chapter.
+            const books = await req('GET', '/books');
+            let foundBookId = null;
+            for(let b of books.data) {
+                if(b.chapters && b.chapters.find(c => c.id === chapterId)) {
+                    foundBookId = b.id; break;
+                }
+            }
+            if(!foundBookId) throw new Error('Глава не найдена в списке книг');
+            currentBookId = foundBookId;
+            document.getElementById('ws-book-id').innerText = foundBookId;
+            document.getElementById('chapter-workspace').classList.remove('hidden');
+            document.getElementById('chapter-details-status').innerText = 'Глава загружена.';
+        } catch (e) {
+            document.getElementById('chapter-details-status').innerHTML = `<span class="error">${e.message}</span>`;
+        }
+    }
+
+    async function uploadFile(type) {
+        try {
+            const fileInput = document.getElementById('upload-' + type + '-file');
+            if(!fileInput.files[0]) throw new Error('Выберите файл');
+            const fd = new FormData();
+            fd.append('file', fileInput.files[0]);
+
+            const chapterId = document.getElementById('work-chapter-id').value;
+            await req('POST', `/books/${currentBookId}/chapters/${chapterId}/files/${type}`, fd);
+            document.getElementById('upload-status').innerText = `${type} успешно загружен!`;
+        } catch (e) {
+            document.getElementById('upload-status').innerHTML = `<span class="error">${e.message}</span>`;
+        }
+    }
+
+    async function generateTimings() {
+        try {
+            const chapterId = document.getElementById('work-chapter-id').value;
+            await req('POST', `/chapters/${chapterId}/timings`);
+            document.getElementById('timings-status').innerText = 'Анализ запущен...';
+        } catch (e) {
+            document.getElementById('timings-status').innerHTML = `<span class="error">${e.message}</span>`;
+        }
+    }
+
+    async function checkTimingsStatus() {
+        try {
+            const chapterId = document.getElementById('work-chapter-id').value;
+            const res = await req('GET', `/chapters/${chapterId}/timings/status`);
+
+            const data = res.data;
+            if (data.canFinalize) {
+                document.getElementById('timings-status').innerText = 'Нет конфликтов! Можно финализировать.';
+                document.getElementById('conflict-panel').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('timings-status').innerText = `Конфликтов: ${data.remainingConflicts}`;
+            if (data.currentConflict) {
+                document.getElementById('conflict-panel').classList.remove('hidden');
+                const c = data.currentConflict;
+                currentConflictIndex = c.index;
+                document.getElementById('conflicts-left').innerText = data.remainingConflicts;
+                document.getElementById('conflict-text').innerText = c.textWord || '<нет в тексте>';
+                document.getElementById('conflict-recognized').innerText = c.recognizedWord;
+                document.getElementById('conflict-word-focus').innerText = c.suggestion;
+                document.getElementById('conflict-correction').value = c.suggestion;
+
+                document.getElementById('context-before').innerText = c.contextBefore;
+                document.getElementById('context-after').innerText = c.contextAfter;
+
+                // Set audio preview if timing is available
+                if (data.audioUrl && c.startMs !== -1) {
+                    const audioEl = document.getElementById('conflict-audio');
+                    // Setting #t=start,end to play specific segment
+                    const startSec = Math.max(0, (c.startMs / 1000) - 2).toFixed(2); // 2 sec context before
+                    const endSec = ((c.endMs / 1000) + 2).toFixed(2);
+                    audioEl.src = `${data.audioUrl}#t=${startSec},${endSec}`;
+                    audioEl.load();
+                } else {
+                    document.getElementById('conflict-audio').removeAttribute('src');
+                }
+            } else {
+                document.getElementById('conflict-panel').classList.add('hidden');
+            }
+
+        } catch (e) {
+            document.getElementById('timings-status').innerHTML = `<span class="error">${e.message}</span>`;
+        }
+    }
+
+    async function resolveConflict() {
+        try {
+            const chapterId = document.getElementById('work-chapter-id').value;
+            const correctedWord = document.getElementById('conflict-correction').value;
+            await req('POST', `/chapters/${chapterId}/timings/conflicts/resolve`, {
+                index: currentConflictIndex,
+                correctedWord: correctedWord
+            });
+            document.getElementById('timings-status').innerText = 'Конфликт разрешен!';
+            checkTimingsStatus(); // load next
+        } catch (e) {
+            document.getElementById('timings-status').innerHTML = `<span class="error">${e.message}</span>`;
+        }
+    }
+
+    async function finalizeTimings() {
+        try {
+            const chapterId = document.getElementById('work-chapter-id').value;
+            await req('POST', `/chapters/${chapterId}/timings/finalize`);
+            document.getElementById('finalize-status').innerText = 'Тайминги финализированы!';
+        } catch (e) {
+            document.getElementById('finalize-status').innerHTML = `<span class="error">${e.message}</span>`;
+        }
+    }
+</script>
+
+</body>
+</html>

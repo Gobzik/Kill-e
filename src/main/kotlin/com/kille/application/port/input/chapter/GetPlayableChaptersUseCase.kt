@@ -1,19 +1,14 @@
 package com.kille.application.port.input.chapter
 
-import com.kille.domain.model.BookId
-import com.kille.domain.model.Chapter
-import com.kille.domain.repository.ChapterRepository
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
+// This use-case was removed from the public API (GET /api/v1/chapters/book/{bookId}/playable)
+// The class is kept as a non-bean placeholder to avoid accidental removal from the VCS
+// but it is no longer registered as a Spring @Service and should not be used.
 
-@Service
-@Transactional(readOnly = true)
-class GetPlayableChaptersUseCase(
-    private val chapterRepository: ChapterRepository
-) {
-
-    fun execute(bookId: BookId): List<Chapter> {
-        return chapterRepository.findByBookIdOrderByIndex(bookId)
-            .filter { it.isPlayable() }
-    }
+/*
+@Deprecated("GetPlayableChaptersUseCase removed — playable chapters endpoint deleted")
+class GetPlayableChaptersUseCase {
+    // intentionally left blank
 }
+*/
+
+// Intentionally no service implementation — endpoint was removed as requested.

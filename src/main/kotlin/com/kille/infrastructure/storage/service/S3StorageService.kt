@@ -234,7 +234,7 @@ class S3StorageService(
         return generatePresignedUrl(key)
     }
 
-    private fun getFileContent(key: String): String? {
+    override fun getFileContent(key: String): String? {
         try {
             if (!fileExists(key)) {
                 return null

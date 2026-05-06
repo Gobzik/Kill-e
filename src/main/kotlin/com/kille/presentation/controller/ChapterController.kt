@@ -5,10 +5,9 @@ import com.kille.presentation.dto.response.ApiResponse
 import com.kille.presentation.dto.response.ChapterResponse
 import com.kille.application.port.input.chapter.CreateChapterUseCase
 import com.kille.application.port.input.chapter.GenerateChapterTimingsCommand
-import com.kille.application.port.input.chapter.FinalizeChapterTimingsResult
 import com.kille.application.port.input.chapter.GenerateChapterTimingsResult
 import com.kille.application.port.input.chapter.GenerateChapterTimingsUseCase
-import com.kille.application.port.input.chapter.GetPlayableChaptersUseCase
+// GetPlayableChaptersUseCase removed from controller as endpoint was deleted
 import com.kille.application.port.input.chapter.GetChapterUseCase
 import com.kille.application.port.input.chapter.UpdateChapterUseCase
 import com.kille.application.port.input.chapter.UpdateChapterCommand
@@ -28,24 +27,18 @@ import org.springframework.web.bind.annotation.*
 class ChapterController(
     private val createChapterUseCase: CreateChapterUseCase,
     private val generateChapterTimingsUseCase: GenerateChapterTimingsUseCase,
-    private val getPlayableChaptersUseCase: GetPlayableChaptersUseCase,
     private val getChapterUseCase: GetChapterUseCase,
     private val updateChapterUseCase: UpdateChapterUseCase,
     private val deleteChapterUseCase: DeleteChapterUseCase
 ) {
 
     @PostMapping
-    @Operation(summary = "Создать главу", description = "Создаёт новую главу")
+    @Operation(summary = "Создать главу", description = "Создаёт новую главу (поддерживается только добавление аудио, текст генерируется из таймингов)")
     fun createChapter(@Valid @RequestBody request: CreateChapterRequest): ResponseEntity<ApiResponse<ChapterResponse>> {
-        if (!request.validate()) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Chapter must have either text or audio"))
-        }
-
         val chapter = createChapterUseCase.execute(
             bookId = BookId.fromString(request.bookId),
             index = ChapterIndex(request.index),
             title = request.title,
-            text = request.text,
             audioUrl = request.audioUrl,
             timingUrl = request.timingUrl
         )
@@ -56,32 +49,11 @@ class ChapterController(
     }
 
     @PostMapping("/{id}/timings")
-    @Operation(summary = "Сгенерировать тайминги", description = "Запускает анализ аудио главы и сохраняет черновик таймингов для ручной проверки")
+    @Operation(summary = "Сгенерировать тайминги и текст", description = "Запускает анализ аудио главы, сразу загружает тайминги и формирует текст главы")
     fun generateTimings(@PathVariable id: String): ResponseEntity<ApiResponse<GenerateChapterTimingsResult>> {
         val result = generateChapterTimingsUseCase.execute(GenerateChapterTimingsCommand(chapterId = id))
 
         return ResponseEntity.ok(ApiResponse.success(result, "Тайминги успешно сгенерированы"))
-    }
-
-    @GetMapping("/{id}/timings/status")
-    @Operation(summary = "Статус таймингов", description = "Сравнивает текущий текст главы с распознанными словами и возвращает первый конфликт")
-    fun timingsStatus(@PathVariable id: String): ResponseEntity<ApiResponse<GenerateChapterTimingsResult>> {
-        val result = generateChapterTimingsUseCase.getStatus(id)
-        return ResponseEntity.ok(ApiResponse.success(result))
-    }
-
-    @PostMapping("/{id}/timings/finalize")
-    @Operation(summary = "Финализировать тайминги", description = "Загружает тайминги в S3 и привязывает их к главе после устранения конфликтов")
-    fun finalizeTimings(@PathVariable id: String): ResponseEntity<ApiResponse<FinalizeChapterTimingsResult>> {
-        val result = generateChapterTimingsUseCase.finalize(id)
-        return ResponseEntity.ok(ApiResponse.success(result, "Тайминги успешно привязаны к главе"))
-    }
-
-    @GetMapping("/book/{bookId}/playable")
-    @Operation(summary = "Получить воспроизводимые главы", description = "Возвращает все воспроизводимые главы книги")
-    fun getPlayableChapters(@PathVariable bookId: String): ResponseEntity<ApiResponse<List<ChapterResponse>>> {
-        val chapters = getPlayableChaptersUseCase.execute(BookId.fromString(bookId))
-        return ResponseEntity.ok(ApiResponse.success(chapters.map { ChapterResponse.fromDomain(it) }))
     }
 
     @GetMapping("/{id}")
@@ -99,7 +71,6 @@ class ChapterController(
     ): ResponseEntity<ApiResponse<ChapterResponse>> {
         val command = UpdateChapterCommand(
             chapterId = id,
-            text = request.text,
             audioUrl = request.audioUrl,
             timingUrl = request.timingUrl
         )
@@ -116,7 +87,6 @@ class ChapterController(
 }
 
 data class UpdateChapterRequest(
-    val text: String? = null,
     val audioUrl: String? = null,
     val timingUrl: String? = null
 )

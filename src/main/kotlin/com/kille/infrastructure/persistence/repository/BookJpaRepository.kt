@@ -10,7 +10,6 @@ interface BookJpaRepository : JpaRepository<BookEntityJpa, UUID> {
 
     fun findByAuthor(author: String): List<BookEntityJpa>
     fun findByLanguage(language: String): List<BookEntityJpa>
-    fun findByHasAudioTrue(): List<BookEntityJpa>
-    fun findByHasTextTrue(): List<BookEntityJpa>
+    // hasAudio / hasText queries removed
     fun findByAuthorAndLanguage(author: String, language: String): List<BookEntityJpa>
 }

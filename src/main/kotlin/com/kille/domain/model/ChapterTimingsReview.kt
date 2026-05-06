@@ -49,6 +49,11 @@ data class ChapterTimingsReview(
         errorMessage = null,
         _updatedAt = LocalDateTime.now()
     )
+
+    fun updateTimings(timingsJson: String): ChapterTimingsReview = copy(
+        timingsJson = timingsJson,
+        _updatedAt = LocalDateTime.now()
+    )
 }
 
 enum class ChapterTimingsReviewStatus {

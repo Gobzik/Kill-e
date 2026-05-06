@@ -25,10 +25,10 @@ class BookEntityJpa(
     var coverUrl: String? = null,
 
     @Column(name = "has_audio", nullable = false)
-    var hasAudio: Boolean,
+    var hasAudio: Boolean = false,
 
     @Column(name = "has_text", nullable = false)
-    var hasText: Boolean,
+    var hasText: Boolean = false,
 
     @Column(name = "created_at", nullable = false, updatable = false)
     var createdAt: LocalDateTime = LocalDateTime.now(),

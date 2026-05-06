@@ -31,6 +31,27 @@ data class Chapter private constructor(
     val durationMs: Long? get() = _durationMs
 
     companion object {
+        fun createWithoutText(
+            bookId: BookId,
+            index: ChapterIndex,
+            title: String? = null
+        ): Chapter {
+            validateTitle(title)
+
+            val now = LocalDateTime.now()
+            return Chapter(
+                id = ChapterId.generate(),
+                bookId = bookId,
+                _index = index,
+                _title = title?.trim(),
+                _text = null,
+                _audioUrl = null,
+                _timingUrl = null,
+                createdAt = now,
+                _updatedAt = now
+            )
+        }
+
         fun createWithText(
             bookId: BookId,
             index: ChapterIndex,
