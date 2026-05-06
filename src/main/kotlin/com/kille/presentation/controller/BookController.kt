@@ -50,7 +50,6 @@ class BookController(
         @RequestParam author: String,
         @RequestParam language: String
     ): ResponseEntity<ApiResponse<BookResponse>> {
-        // Build existing DTO and delegate to use case to avoid changing business logic
         val request = CreateBookRequest(
             title = title.trim(),
             author = author.trim(),
@@ -90,6 +89,4 @@ class BookController(
         deleteBookUseCase.execute(id)
         return ResponseEntity.ok(ApiResponse.success(Unit, "Книга успешно удалена"))
     }
-
-    // NOTE: endpoint POST /api/v1/books/{bookId}/chapters removed as requested
 }

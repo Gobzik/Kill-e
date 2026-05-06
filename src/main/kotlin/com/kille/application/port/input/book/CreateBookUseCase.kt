@@ -46,18 +46,13 @@ class CreateBookUseCase(
             chapter
         }
 
-        val hasAudio = chapters.any { it.hasAudio() }
-        val hasText = chapters.any { it.hasText() }
-
         val book = Book.createWithId(
             id = bookId,
             title = input.title,
             author = input.author,
             language = input.language,
             coverUrl = input.coverUrl,
-            chapters = chapters,
-            audio = hasAudio,
-            text = hasText
+            chapters = chapters
         )
 
         val savedBook = repository.save(book)

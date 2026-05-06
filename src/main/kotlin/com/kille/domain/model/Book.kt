@@ -46,8 +46,6 @@ class Book private constructor(
         ensureSorting()
     }
 
-    fun hasAudio(): Boolean = _audio
-    fun hasText(): Boolean = _text
     fun chapterCount(): Int = _chapters.size
     fun chapters(): List<Chapter> = _chapters.toList()
 
@@ -93,8 +91,6 @@ class Book private constructor(
             language: String,
             coverUrl: String? = null,
             chapters: List<Chapter>,
-            audio: Boolean,
-            text: Boolean
         ): Book {
             val hasAudio = chapters.any { it.hasAudio() }
             val hasText = chapters.any { it.hasText() }
@@ -119,8 +115,6 @@ class Book private constructor(
             language: String,
             coverUrl: String? = null,
             chapters: List<Chapter>,
-            audio: Boolean,
-            text: Boolean
         ): Book {
             val hasAudio = chapters.any { it.hasAudio() }
             val hasText = chapters.any { it.hasText() }
@@ -159,12 +153,6 @@ class Book private constructor(
                 _audio = audio,
                 _text = text
             )
-        }
-    }
-
-    private fun validateChapterIndex(index: Int) {
-        require(index in _chapters.indices) {
-            "Индекс главы $index вне допустимого диапазона [0, ${_chapters.size})"
         }
     }
 }

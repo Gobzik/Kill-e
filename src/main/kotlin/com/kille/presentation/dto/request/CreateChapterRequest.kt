@@ -17,9 +17,4 @@ data class CreateChapterRequest(
     val audioUrl: String? = null,
 
     val timingUrl: String? = null
-) {
-    fun validate(): Boolean {
-        // Now only requires saving the chapter, it's valid initially empty as text/audio come later
-        return true
-    }
-}
+)

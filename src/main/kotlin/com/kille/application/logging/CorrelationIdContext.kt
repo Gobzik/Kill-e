@@ -20,6 +20,4 @@ object CorrelationIdContext {
     fun clear() {
         correlationIdHolder.remove()
     }
-
-    fun getOrGenerate(): String = get() ?: generate()
 }

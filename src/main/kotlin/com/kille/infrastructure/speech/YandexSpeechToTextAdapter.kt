@@ -59,7 +59,6 @@ class YandexSpeechToTextAdapter(
             ),
             "rawResults" to true
         )
-        // Only set folderId if it's not a generic placeholder
         if (properties.folderId.isNotBlank() && properties.folderId != "folder_id") {
             requestBody["folderId"] = properties.folderId
         }
@@ -96,7 +95,6 @@ class YandexSpeechToTextAdapter(
 
         logger.debug("Started asynchronous recognition, Operation ID: {}", operationId)
 
-        // Poll operation status
         var done = false
         var attempts = 0
         while (!done && attempts < 60) {
@@ -136,7 +134,6 @@ class YandexSpeechToTextAdapter(
 
         logger.debug("Operation {} completed successfully", operationId)
 
-        // Get recognition results
         val rawResponse = try {
             val request = HttpRequest.newBuilder()
                 .uri(URI.create("https://stt.api.cloud.yandex.net/stt/v3/getRecognition?operationId=$operationId"))
@@ -158,8 +155,6 @@ class YandexSpeechToTextAdapter(
 
         val words = mutableListOf<WordTiming>()
 
-        // Yandex GET /getRecognition can return a sequence of JSON objects (Newline-delimited JSON).
-        // We should parse each distinct JSON object.
         rawResponse.lines()
             .filter { it.isNotBlank() }
             .forEach { line ->
@@ -173,20 +168,31 @@ class YandexSpeechToTextAdapter(
 
         logger.debug("SpeechKit returned {} words from response", words.size)
 
-        if (words.isEmpty()) {
+        val uniqueWords = words.distinctBy { "${it.word}_${it.startMs}_${it.endMs}" }.sortedBy { it.startMs }
+
+        if (uniqueWords.isEmpty()) {
             logger.warn("SpeechKit returned no word timings. Raw response: {}", rawResponse)
             throw IllegalStateException("SpeechKit returned no word timings")
         }
 
-        return words.sortedBy { it.startMs }
+        return uniqueWords
     }
 
     private fun collectWords(node: JsonNode, result: MutableList<WordTiming>) {
         if (node.isObject) {
+            if (node.has("alternatives") && node.get("alternatives").isArray) {
+                val alternatives = node.get("alternatives")
+                if (!alternatives.isEmpty) {
+                    collectWords(alternatives.get(0), result)
+                }
+                return
+            }
+
             if (node.has("words") && node.get("words").isArray) {
                 node.get("words").forEach { wordNode ->
                     parseWord(wordNode)?.let(result::add)
                 }
+                return
             }
 
             node.fields().forEachRemaining { (_, child) ->

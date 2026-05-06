@@ -40,24 +40,8 @@ data class ChapterTimingsReview(
             )
         }
     }
-
-    fun markReviewing(): ChapterTimingsReview = copy(status = ChapterTimingsReviewStatus.REVIEWING, _updatedAt = LocalDateTime.now())
-
-    fun complete(timingUrl: String): ChapterTimingsReview = copy(
-        status = ChapterTimingsReviewStatus.COMPLETED,
-        timingUrl = timingUrl,
-        errorMessage = null,
-        _updatedAt = LocalDateTime.now()
-    )
-
-    fun updateTimings(timingsJson: String): ChapterTimingsReview = copy(
-        timingsJson = timingsJson,
-        _updatedAt = LocalDateTime.now()
-    )
 }
 
 enum class ChapterTimingsReviewStatus {
-    PENDING,
-    REVIEWING,
-    COMPLETED
+    PENDING
 }

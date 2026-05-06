@@ -44,9 +44,7 @@ class BookServiceTest {
             author = "Тестовый автор",
             language = "ru",
             coverUrl = null,
-            chapters = listOf(chapter),
-            audio = false,
-            text = true
+            chapters = listOf(chapter)
         )
 
         val created = service.create(book)
@@ -70,9 +68,7 @@ class BookServiceTest {
             title = "Книга",
             author = "Автор",
             language = "ru",
-            chapters = listOf(chapter),
-            audio = false,
-            text = true
+            chapters = listOf(chapter)
         )
         service.create(book)
 
@@ -95,9 +91,7 @@ class BookServiceTest {
             title = "Книга",
             author = "Автор",
             language = "ru",
-            chapters = listOf(chapter),
-            audio = false,
-            text = true
+            chapters = listOf(chapter)
         )
         service.create(book)
 
@@ -116,8 +110,8 @@ class BookServiceTest {
         val chapter1 = Chapter.createWithText(bookId1, ChapterIndex(0), "Гл.1", "Текст 1")
         val chapter2 = Chapter.createWithText(bookId2, ChapterIndex(0), "Гл.1", "Текст 2")
 
-        val book1 = Book.createWithId(bookId1, "Книга 1", "Автор 1", "ru", chapters = listOf(chapter1), audio = false, text = true)
-        val book2 = Book.createWithId(bookId2, "Книга 2", "Автор 2", "en", chapters = listOf(chapter2), audio = false, text = true)
+        val book1 = Book.createWithId(bookId1, "Книга 1", "Автор 1", "ru", chapters = listOf(chapter1))
+        val book2 = Book.createWithId(bookId2, "Книга 2", "Автор 2", "en", chapters = listOf(chapter2))
 
         service.create(book1)
         service.create(book2)
@@ -131,7 +125,7 @@ class BookServiceTest {
     fun `UPDATE - успешное обновление книги`() {
         val bookId = BookId.generate()
         val chapter = Chapter.createWithText(bookId, ChapterIndex(0), "Глава", "Текст")
-        val book = Book.createWithId(bookId, "Старое название", "Автор", "ru", chapters = listOf(chapter), audio = false, text = true)
+        val book = Book.createWithId(bookId, "Старое название", "Автор", "ru", chapters = listOf(chapter))
         service.create(book)
 
         val updatedBook = Book.restore(bookId, "Новое название", "Автор", "ru", chapters = listOf(chapter), audio = false, text = true)
@@ -146,7 +140,7 @@ class BookServiceTest {
     fun `UPDATE - ошибка при обновлении несуществующей книги`() {
         val bookId = BookId.generate()
         val chapter = Chapter.createWithText(bookId, ChapterIndex(0), "Глава", "Текст")
-        val book = Book.createWithId(bookId, "Книга", "Автор", "ru", chapters = listOf(chapter), audio = false, text = true)
+        val book = Book.createWithId(bookId, "Книга", "Автор", "ru", chapters = listOf(chapter))
 
         assertThrows<IllegalArgumentException> {
             service.update(book)
@@ -157,7 +151,7 @@ class BookServiceTest {
     fun `DELETE - успешное удаление книги`() {
         val bookId = BookId.generate()
         val chapter = Chapter.createWithText(bookId, ChapterIndex(0), "Глава", "Текст")
-        val book = Book.createWithId(bookId, "Книга", "Автор", "ru", chapters = listOf(chapter), audio = false, text = true)
+        val book = Book.createWithId(bookId, "Книга", "Автор", "ru", chapters = listOf(chapter))
         service.create(book)
         assertEquals(1, service.count())
 
@@ -180,7 +174,7 @@ class BookServiceTest {
     fun `exists - проверка существования книги`() {
         val bookId = BookId.generate()
         val chapter = Chapter.createWithText(bookId, ChapterIndex(0), "Глава", "Текст")
-        val book = Book.createWithId(bookId, "Книга", "Автор", "ru", chapters = listOf(chapter), audio = false, text = true)
+        val book = Book.createWithId(bookId, "Книга", "Автор", "ru", chapters = listOf(chapter))
 
         assertFalse(service.exists(bookId))
         service.create(book)
@@ -196,10 +190,10 @@ class BookServiceTest {
         val chapter1 = Chapter.createWithText(bookId1, ChapterIndex(0), "Гл", "Т")
         val chapter2 = Chapter.createWithText(bookId2, ChapterIndex(0), "Гл", "Т")
 
-        service.create(Book.createWithId(bookId1, "Книга 1", "Автор", "ru", chapters = listOf(chapter1), audio = false, text = true))
+        service.create(Book.createWithId(bookId1, "Книга 1", "Автор", "ru", chapters = listOf(chapter1)))
         assertEquals(1, service.count())
 
-        service.create(Book.createWithId(bookId2, "Книга 2", "Автор", "ru", chapters = listOf(chapter2), audio = false, text = true))
+        service.create(Book.createWithId(bookId2, "Книга 2", "Автор", "ru", chapters = listOf(chapter2)))
         assertEquals(2, service.count())
     }
 }

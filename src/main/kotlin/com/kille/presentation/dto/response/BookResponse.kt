@@ -9,7 +9,6 @@ data class BookResponse(
     val author: String,
     val language: String,
     val coverUrl: String?,
-    // hasAudio/hasText removed
     val chapterCount: Int,
     val chapters: List<ChapterResponse>
 )

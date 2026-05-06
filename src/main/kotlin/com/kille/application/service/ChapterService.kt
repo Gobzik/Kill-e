@@ -84,5 +84,3 @@ class ChapterService(
         chapters.clear()
     }
 }
-
-// ...existing code...

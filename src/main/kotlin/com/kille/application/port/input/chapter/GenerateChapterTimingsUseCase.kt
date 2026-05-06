@@ -33,23 +33,12 @@ class GenerateChapterTimingsUseCase(
         val chapter = loadChapter(chapterId)
         val audioKey = chapter.audioUrl ?: throw IllegalArgumentException("Audio URL is required to generate timings")
         val audioUrl = storagePort.getPresignedUrl(audioKey)
-
-        // Generate timings via STT
         val words = speechToTextPort.recognizeWords(audioUrl)
         val timingsJson = objectMapper.writeValueAsString(TimingsPayload(words))
         val duration = words.maxOfOrNull { it.endMs }
-
-        // Generate Text
         val generatedText = words.joinToString(" ") { it.word }
-
-        // Save timings and text to S3
         val timingKey = storagePort.uploadTimings(chapter.bookId.value, chapter.id.value, timingsJson)
-
-        // Save text as a file in S3 instead of just DB if needed, or save to DB.
-        // We'll upload text to storage
         val textKey = storagePort.uploadText(chapter.bookId.value, chapter.id.value, generatedText)
-
-        // Update Chapter
         val updatedChapter = chapter.addAudio(audioKey, timingKey).updateText(textKey)
         chapterRepository.save(updatedChapter)
 
