@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:15
+        image: postgres:16-alpine
         env:
-          POSTGRES_DB: kill_e_db
-          POSTGRES_USER: kill_e_user
-          POSTGRES_PASSWORD: kill_e_pass
+          POSTGRES_DB: killedb
+          POSTGRES_USER: killeuser
+          POSTGRES_PASSWORD: killepass
         ports:
           - 5432:5432
         options: >-
@@ -38,3 +38,7 @@ jobs:
 
       - name: Run tests
         run: ./gradlew test
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/mydb
+          SPRING_DATASOURCE_USERNAME: myuser
+          SPRING_DATASOURCE_PASSWORD: mypassword
