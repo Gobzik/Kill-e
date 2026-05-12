@@ -15,8 +15,6 @@ class BookMapper {
             author = book.author,
             language = book.language,
             coverUrl = book.coverUrl,
-            hasAudio = book.hasAudio(),
-            hasText = book.hasText(),
             chapterCount = book.chapterCount(),
             chapters = book.chapters().map { ChapterResponse.fromDomain(it) }
         )

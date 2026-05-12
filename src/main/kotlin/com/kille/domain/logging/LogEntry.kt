@@ -20,7 +20,7 @@ enum class LogLevel {
 }
 
 enum class Layer {
-    PRESENTATION, APPLICATION, INFRASTRUCTURE, DOMAIN
+    PRESENTATION, APPLICATION, INFRASTRUCTURE
 }
 
 data class ExceptionInfo(

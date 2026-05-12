@@ -4,7 +4,10 @@ import com.kille.presentation.dto.request.CreateChapterRequest
 import com.kille.presentation.dto.response.ApiResponse
 import com.kille.presentation.dto.response.ChapterResponse
 import com.kille.application.port.input.chapter.CreateChapterUseCase
-import com.kille.application.port.input.chapter.GetPlayableChaptersUseCase
+import com.kille.application.port.input.chapter.GenerateChapterTimingsCommand
+import com.kille.application.port.input.chapter.GenerateChapterTimingsResult
+import com.kille.application.port.input.chapter.GenerateChapterTimingsUseCase
+// GetPlayableChaptersUseCase removed from controller as endpoint was deleted
 import com.kille.application.port.input.chapter.GetChapterUseCase
 import com.kille.application.port.input.chapter.UpdateChapterUseCase
 import com.kille.application.port.input.chapter.UpdateChapterCommand
@@ -23,24 +26,19 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Chapters", description = "API для управления главами")
 class ChapterController(
     private val createChapterUseCase: CreateChapterUseCase,
-    private val getPlayableChaptersUseCase: GetPlayableChaptersUseCase,
+    private val generateChapterTimingsUseCase: GenerateChapterTimingsUseCase,
     private val getChapterUseCase: GetChapterUseCase,
     private val updateChapterUseCase: UpdateChapterUseCase,
     private val deleteChapterUseCase: DeleteChapterUseCase
 ) {
 
     @PostMapping
-    @Operation(summary = "Создать главу", description = "Создаёт новую главу")
+    @Operation(summary = "Создать главу", description = "Создаёт новую главу (поддерживается только добавление аудио, текст генерируется из таймингов)")
     fun createChapter(@Valid @RequestBody request: CreateChapterRequest): ResponseEntity<ApiResponse<ChapterResponse>> {
-        if (!request.validate()) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Chapter must have either text or audio"))
-        }
-
         val chapter = createChapterUseCase.execute(
             bookId = BookId.fromString(request.bookId),
             index = ChapterIndex(request.index),
             title = request.title,
-            text = request.text,
             audioUrl = request.audioUrl,
             timingUrl = request.timingUrl
         )
@@ -50,11 +48,12 @@ class ChapterController(
             .body(ApiResponse.success(ChapterResponse.fromDomain(chapter), "Глава успешно создана"))
     }
 
-    @GetMapping("/book/{bookId}/playable")
-    @Operation(summary = "Получить воспроизводимые главы", description = "Возвращает все воспроизводимые главы книги")
-    fun getPlayableChapters(@PathVariable bookId: String): ResponseEntity<ApiResponse<List<ChapterResponse>>> {
-        val chapters = getPlayableChaptersUseCase.execute(BookId.fromString(bookId))
-        return ResponseEntity.ok(ApiResponse.success(chapters.map { ChapterResponse.fromDomain(it) }))
+    @PostMapping("/{id}/timings")
+    @Operation(summary = "Сгенерировать тайминги и текст", description = "Запускает анализ аудио главы, сразу загружает тайминги и формирует текст главы")
+    fun generateTimings(@PathVariable id: String): ResponseEntity<ApiResponse<GenerateChapterTimingsResult>> {
+        val result = generateChapterTimingsUseCase.execute(GenerateChapterTimingsCommand(chapterId = id))
+
+        return ResponseEntity.ok(ApiResponse.success(result, "Тайминги успешно сгенерированы"))
     }
 
     @GetMapping("/{id}")
@@ -72,7 +71,6 @@ class ChapterController(
     ): ResponseEntity<ApiResponse<ChapterResponse>> {
         val command = UpdateChapterCommand(
             chapterId = id,
-            text = request.text,
             audioUrl = request.audioUrl,
             timingUrl = request.timingUrl
         )
@@ -89,7 +87,7 @@ class ChapterController(
 }
 
 data class UpdateChapterRequest(
-    val text: String? = null,
     val audioUrl: String? = null,
     val timingUrl: String? = null
 )
+

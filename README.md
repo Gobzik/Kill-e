@@ -20,7 +20,6 @@ git clone https://github.com/Gobzik/Kill-e.git
 cd Kill-e
 docker compose up --build
 ```
-
 ## Команды для управления
 
 | Команда | Описание | Полезные флаги |

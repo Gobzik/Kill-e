@@ -8,7 +8,6 @@ value class ChapterIndex(val value: Int) : Comparable<ChapterIndex> {
     }
 
     fun next(): ChapterIndex = ChapterIndex(value + 1)
-    fun previous(): ChapterIndex? = if (value > 0) ChapterIndex(value - 1) else null
 
     override fun toString(): String = value.toString()
 

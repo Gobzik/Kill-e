@@ -38,9 +38,6 @@ data class ChapterData(
     @field:Size(max = 500, message = "Title must be less than 500 characters")
     val title: String? = null,
 
-    val text: String? = null,
 
-    val audioUrl: String? = null,
-
-    val durationMs: Long? = null
+    val audioUrl: String? = null
 )

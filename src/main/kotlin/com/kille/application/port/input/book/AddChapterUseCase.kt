@@ -15,6 +15,15 @@ class AddChapterUseCase(
     private val repository: BookRepository
 ) : UseCase<AddChapterCommand, ChapterResponse> {
 
+    private fun normalizeMediaUrl(value: String?): String? {
+        val normalized = value?.trim() ?: return null
+        if (normalized.isEmpty()) return null
+        if (normalized.equals("string", ignoreCase = true)) return null
+        if (normalized.equals("null", ignoreCase = true)) return null
+        if (normalized.equals("undefined", ignoreCase = true)) return null
+        return normalized
+    }
+
     @Transactional
     override fun execute(input: AddChapterCommand): ChapterResponse {
         val book = repository.findById(BookId(input.bookId))
@@ -27,12 +36,9 @@ class AddChapterUseCase(
             text = input.content
         )
 
-        if (input.durationMs != null) {
-            chapter = chapter.updateDuration(input.durationMs)
-        }
-
-        if (!input.audioUrl.isNullOrBlank()) {
-            chapter = chapter.addAudio(input.audioUrl, null)
+        val normalizedAudioUrl = normalizeMediaUrl(input.audioUrl)
+        if (normalizedAudioUrl != null) {
+            chapter = chapter.addAudio(normalizedAudioUrl, null)
         }
 
         book.addChapter(chapter)
@@ -47,6 +53,5 @@ data class AddChapterCommand(
     val title: String,
     val content: String,
     val index: Int,
-    val audioUrl: String? = null,
-    val durationMs: Long? = null
+    val audioUrl: String? = null
 )

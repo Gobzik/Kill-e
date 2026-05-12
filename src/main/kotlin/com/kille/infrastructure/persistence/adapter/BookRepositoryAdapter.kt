@@ -54,8 +54,8 @@ class BookRepositoryAdapter(
             author = domain.author,
             language = domain.language,
             coverUrl = domain.coverUrl,
-            hasAudio = domain.hasAudio(),
-            hasText = domain.hasText(),
+            hasAudio = domain.audio,
+            hasText = domain.text,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
         )
@@ -95,6 +95,9 @@ class BookRepositoryAdapter(
             )
         }
 
+        val hasAudio = chapters.any { it.hasAudio() }
+        val hasText = chapters.any { it.hasText() }
+
         return Book.restore(
             id = BookId(jpa.id),
             title = jpa.title,
@@ -102,8 +105,8 @@ class BookRepositoryAdapter(
             language = jpa.language,
             coverUrl = jpa.coverUrl,
             chapters = chapters,
-            audio = jpa.hasAudio,
-            text = jpa.hasText
+            audio = hasAudio,
+            text = hasText
         )
     }
 }

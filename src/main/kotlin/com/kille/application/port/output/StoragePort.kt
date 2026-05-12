@@ -17,4 +17,8 @@ interface StoragePort {
     fun chapterExists(bookId: UUID, chapterId: UUID): Boolean
 
     fun getAudioInputStream(bookId: UUID, chapterId: UUID): InputStream?
+    fun uploadFile(key: String, file: MultipartFile): String
+    fun uploadContent(key: String, content: String, contentType: String): String
+    fun getPresignedUrl(key: String): String
+    fun getFileContent(key: String): String?
 }

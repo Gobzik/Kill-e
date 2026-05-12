@@ -60,7 +60,7 @@ class ChapterService(
 
     fun delete(id: ChapterId) {
         if (!chapters.containsKey(id)) {
-            throw IllegalArgumentException("Chapter with ID ${id} not found")
+            throw IllegalArgumentException("Chapter with ID $id not found")
         }
         chapters.remove(id)
     }

@@ -68,9 +68,7 @@ class DemoRunner(
             author = "Leo Tolstoy",
             language = "en",
             coverUrl = "https://example.com/cover1.jpg",
-            chapters = listOf(chapter1),
-            audio = false,
-            text = true
+            chapters = listOf(chapter1)
         )
 
         try {
@@ -118,9 +116,7 @@ class DemoRunner(
             author = "Mikhail Bulgakov",
             language = "en",
             coverUrl = "https://example.com/cover2.jpg",
-            chapters = listOf(chapter2),
-            audio = false,
-            text = true
+            chapters = listOf(chapter2)
         )
 
         try {
@@ -161,9 +157,7 @@ class DemoRunner(
                 author = "Leo Tolstoy",
                 language = "en",
                 coverUrl = "https://example.com/cover1_updated.jpg",
-                chapters = listOf(updatedChapter),
-                audio = false,
-                text = true
+                chapters = listOf(updatedChapter)
             )
 
             bookService.update(updatedBook)
@@ -221,9 +215,7 @@ class DemoRunner(
             title = "Test book for chapters",
             author = "Test author",
             language = "en",
-            chapters = listOf(testChapter),
-            audio = false,
-            text = true
+            chapters = listOf(testChapter)
         )
         bookService.create(testBook)
 
@@ -375,9 +367,7 @@ class DemoRunner(
             title = forbiddenTitle,
             author = "Test author",
             language = "en",
-            chapters = listOf(forbiddenChapter),
-            audio = false,
-            text = true
+            chapters = listOf(forbiddenChapter)
         )
 
         try {
@@ -420,9 +410,7 @@ class DemoRunner(
             title = "Temporary book",
             author = "Author",
             language = "en",
-            chapters = listOf(tempChapter),
-            audio = false,
-            text = true
+            chapters = listOf(tempChapter)
         )
         bookService.create(tempBook)
 
@@ -460,9 +448,7 @@ class DemoRunner(
             title = "Book with chapters",
             author = "Author",
             language = "en",
-            chapters = listOf(initialChapter),
-            audio = false,
-            text = true
+            chapters = listOf(initialChapter)
         )
         bookService.create(bookForManyChapters)
 
